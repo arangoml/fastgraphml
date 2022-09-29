@@ -4,12 +4,13 @@ Given an input graph it generates Graph Embeddings using Low-Code framework buil
 ## Installation
 #### Latest Release
 ```
-pip install lightning-graph-embeddings
+pip install fastgraphml
 ```
 #### Current State
 ```
-pip install git+https://github.com/arangoml/pyg-adapter.git@dev
-pip install git+https://github.com/sachinsharma9780/Lightning-Graph-Embeddings
+pip install adbpyg-adapter
+pip install git+https://github.com/arangoml/fastgraphml
+
 ```
 
 ## Quickstart: Graph Embedding Generation

@@ -25,8 +25,8 @@ class METAPATH2VEC:
         :pyg_graph (type: PyG data object): It generates graph embeddings using PyG graphs (via PyG data objects) directy rather than ArangoDB graphs.
                     When generating graph embeddings via PyG graphs, database=arango_graph=metagraph=None.
         :embedding_size (type: int): Length of the node embeddings when they are mapped to d-dimensional euclidean space.
-        :metapaths (type: list[Tuple(str,str,str)]): The metapath defined as (src_node_type, rel_type, dst_node_type) tuples. It uses metapaths to 
-        perform random walks on the graph annd uses skip-grapm to compute graph embeddings.
+        :metapaths (type: list[Tuple(str,str,str)]): The metapath defined as (src_node_type, rel_type, dst_node_type) tuples. M2V uses metapaths to 
+        perform random walks on the graph and then uses skip-grapm to compute graph embeddings.
         :key_node (type: str): Node type on which we want to test the performance of generated graph embeddings. Performance is tested using node classification task.
         :walk_length (type: int): The walk length. 
         :context_size (type: int): The actual context size which is considered for positive samples. 

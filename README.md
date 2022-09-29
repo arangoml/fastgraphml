@@ -15,9 +15,9 @@ pip install git+https://github.com/arangoml/fastgraphml
 
 ## Quickstart: Graph Embedding Generation
 
-#### Use Case 1: Generates Graph Embeddings using the graphs stored inside ArangoDB:
+### Use Case 1: Generates Graph Embeddings using the graphs stored inside ArangoDB:
 
-##### Example 1.1 Homogneous Graphs
+#### Example 1.1 Homogneous Graphs
 
 ```python
 from graph_embeddings import SAGE, GAT
@@ -45,7 +45,7 @@ model._train(model, epochs=10) # train
 embeddings = model.get_embeddings(model=model) # get embeddings
 ```
 
-##### Example 1.2 Heterogeneous Graphs
+#### Example 1.2 Heterogeneous Graphs
 
 ```python
 from graph_embeddings import METAPATH2VEC, DMGI
@@ -78,7 +78,7 @@ model._train(epochs=10, lr=0.03) # train
 embeddings = model.get_embeddings() # get embeddings
 ```
 
-#### Use Case 2: Generates Graph Embeddings using PyG graphs:
+### Use Case 2: Generates Graph Embeddings using PyG graphs:
 
 ```python
 from graph_embeddings import SAGE, GAT
@@ -97,9 +97,9 @@ embeddings = model.get_embeddings(model=model) # get embeddings
 ## Quickstart: Downstream Tasks
 In addition, the library also provides various low-code helper methods to carry out number of downstream tasks such as visualisation, similarity search (recommendation) , and link prediction (to be added soon).
 
-#### Downstream Task 1: Graph Embedding Visualisation
+### Downstream Task 1: Graph Embedding Visualisation
 This method helps in visualization of generated Graph Embeddings by reducing them 2 dimensions using U-Map.
-##### Example
+#### Example
 ```python
 # amazon computers dataset
 class_names = {0: 'Desktops',1: 'Data Storage',2: 'Laptops',3: 'Monitors',4: 'Computer Components',
@@ -107,16 +107,16 @@ class_names = {0: 'Desktops',1: 'Data Storage',2: 'Laptops',3: 'Monitors',4: 'Co
 # with one line of code
 model.graph_util.visualize_embeddings(embeddings, class_mapping=class_names, emb_percent=0.1) 
 ```
-#### Downstream Task 2: Scalable Similarity Search with Faiss
+### Downstream Task 2: Scalable Similarity Search with Faiss
 [Faiss](https://engineering.fb.com/2017/03/29/data-infrastructure/faiss-a-library-for-efficient-similarity-search/) is a tool developed by Facebook that performs similarity search in sets of vectors of any size, up to ones that possibly do not fit in RAM.
 We support two types of search for now:
 1. exact search: For precise similarity search but at the cost of scalability.
 2. approx search: For scalable similarity search but at the cost of some precision loss.
-##### Example 1.1
+#### Example 1.1
 ```python
 model.graph_util.similarity_search(embeddings, top_k_nbors=10, nlist=10, search_type='exact')
 ```
-##### Example 1.2
+#### Example 1.2
 If nearest_nbors_search=True, store_embeddings method saves generated Graph Embeddings in ArangoDB along with top_k nearest neighbors (node ids with similar embeddings) and their corresponding similarity scores (i.e. cosine distance). 
 ```python
 model.graph_util.store_embeddings(embeddings, collection_name=None, batch_size=100, class_mapping=None, 

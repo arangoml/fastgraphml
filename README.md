@@ -17,6 +17,8 @@ pip install git+https://github.com/arangoml/fastgraphml
 
 #### Use Case 1: Generates Graph Embeddings using the graphs stored inside ArangoDB:
 
+## Example 1.1 Homogneous Graphs
+
 ```python
 from graph_embeddings import SAGE, GAT
 from arango import ArangoClient
@@ -42,6 +44,40 @@ model = SAGE(db, arango_graph, metagraph, embedding_size=64) # define graph embe
 model._train(model, epochs=10) # train
 embeddings = model.get_embeddings(model=model) # get embeddings
 ```
+
+## Example 1.2 Heterogeneous Graphs
+
+```python
+from graph_embeddings import METAPATH2VEC, DMGI
+from arango import ArangoClient
+
+# Initialize the ArangoDB client.
+client = ArangoClient("http://127.0.0.1:8529")
+db = client.db('_system', username='root')
+
+arango_graph = db.graph("IMDB")
+metagraph = {
+    "vertexCollections": {
+    
+        "movie": { "x": "x", "y": "y"},  
+        "director": {"x": "x"},
+        "actor": {"x": "x"},
+    },
+    "edgeCollections": {
+        "to": {},
+    },
+}
+metapaths = [('movie', 'to','actor'),
+             ('actor', 'to', 'movie'), ] # MAM # co-actor relationship
+
+# generating graph embeddings with 3 lines of code
+model = METAPATH2VEC(db, arango_graph, metagraph, metapaths, key_node='movie', embedding_size=128,
+                     walk_length=5, context_size=6, walks_per_node=5, num_negative_samples=5,
+                     sparse=True) # define model
+model._train(epochs=10, lr=0.03) # train
+embeddings = model.get_embeddings() # get embeddings
+```
+
 #### Use Case 2: Generates Graph Embeddings using PyG graphs:
 
 ```python

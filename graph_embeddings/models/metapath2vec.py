@@ -99,7 +99,7 @@ class METAPATH2VEC:
         :best_model_path (type: str): Path to save model whenever there is an increase in validation accuracy. By default it saves model in cwd.
         :epochs (type: int): Number of times training data go through the model.
         :lr (type: float): Learning rate.
-        : log_steps (type: int): Logs epochs and loss
+        : log_steps (type: int): Logs epochs and loss.
         : eval_steps (type: int): Evaluate model performance using validation and test data.
         :**kwargs: Additional arguments for the Adam optimizer for e.g. weight_decay, betas, etc.
         """

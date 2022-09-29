@@ -93,6 +93,16 @@ model = SAGE(pyg_graph=data, embedding_size=64) # define graph embedding model
 model._train(model, epochs=10) # train
 embeddings = model.get_embeddings(model=model) # get embeddings
 ```
+## Models Supported
+
+Model         | Homogeneous   | Heterogeneous | Node Features
+------------- | ------------- | ------------- | ------------- 
+[GraphSage](https://arxiv.org/abs/1706.02216)     | ✔️             |               | ✔️ 
+[GAT](https://arxiv.org/abs/1710.10903)           | ✔️             |               | ✔️ 
+[Metapath2Vec](https://ericdongyx.github.io/papers/KDD17-dong-chawla-swami-metapath2vec.pdf)  |               | ✔️             |  
+[DMGI](https://arxiv.org/pdf/1911.06750.pdf)          |               | ✔️             | ✔️ 
+
+
 
 ## Quickstart: Downstream Tasks
 In addition, the library also provides various low-code helper methods to carry out number of downstream tasks such as visualisation, similarity search (recommendation) , and link prediction (to be added soon).

@@ -133,3 +133,17 @@ model.graph_util.store_embeddings(embeddings, collection_name=None, batch_size=1
         nearest_nbors_search=False, top_k_nbors=10, nlist=10, search_type='exact')
 ```
 
+## Contributing
+
+### Dev Dependencies
+To install the required development & code quality packages you can run
+```shell
+pip install -e .[dev]
+```
+
+
+### Pre-commit Hook
+To set up a git pre-commit that will run code quality checks, run
+```shell
+pre-commit install
+```

@@ -43,7 +43,13 @@ setup(
         "setuptools>=45",
     ],
     extras_require={
-        "dev": ["black==22.8.0", "mypy==0.981", "flake8==5.0.4", "isort==5.10.1"],
+        "dev": [
+            "black==22.8.0",
+            "mypy==0.981",
+            "flake8==5.0.4",
+            "isort==5.10.1",
+            "pre-commit==2.20.0",
+        ],
     },
     classifiers=[
         "Intended Audience :: Data Scientists/ML Engineers",

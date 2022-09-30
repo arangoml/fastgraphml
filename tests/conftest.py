@@ -1,10 +1,10 @@
 # configuration test
+from adbpyg_adapter import ADBPyG_Adapter
 from arango import ArangoClient
 from arango.database import StandardDatabase
 from arango.http import DefaultHTTPClient
-
-from adbpyg_adapter import ADBPyG_Adapter
 from torch_geometric.datasets import Planetoid
+
 
 def pytest_addoption(parser) -> None:
     parser.addoption("--url", action="store", default="http://localhost:8529")
@@ -43,4 +43,6 @@ def pytest_configure(config) -> None:
     data = dataset[0]
     # heterodata = data.to_heterogeneous(node_type_names=['Paper'], edge_types_names=[('Paper', 'Cites', 'Paper')])
     # db.delete_graph("Cora_Test", drop_collections=True, ignore_missing=True)
-    adbpyg.pyg_to_arangodb("Cora_Test", data, {"x": "features", "y": "label"}, overwrite=True)
+    adbpyg.pyg_to_arangodb(
+        "Cora_Test", data, {"x": "features", "y": "label"}, overwrite=True
+    )

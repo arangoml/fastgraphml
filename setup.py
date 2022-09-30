@@ -11,8 +11,15 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/arangoml/fastgraphml",
-    keywords=["arangodb", "pyg", "graph deep learning" ,"graph embeddings", "pytorch geometric",
-    "graph machine learning", "graph neural networks"],
+    keywords=[
+        "arangodb",
+        "pyg",
+        "graph deep learning",
+        "graph embeddings",
+        "pytorch geometric",
+        "graph machine learning",
+        "graph neural networks",
+    ],
     packages=["graph_embeddings"],
     include_package_data=True,
     python_requires=">=3.8",
@@ -23,7 +30,7 @@ setup(
         "tqdm",
         "umap-learn",
         "matplotlib",
-        "numba==0.53.0", # for CPU (used by FAISS)
+        "numba==0.53.0",  # for CPU (used by FAISS)
         "matplotlib-inline",
         "seaborn",
         "torch>=1.12.0",
@@ -36,12 +43,7 @@ setup(
         "setuptools>=45",
     ],
     extras_require={
-        "dev": [
-            "black==22.8.0",
-            "mypy==0.981",
-            "flake8==5.0.4",
-            "isort==5.10.1"
-        ],
+        "dev": ["black==22.8.0", "mypy==0.981", "flake8==5.0.4", "isort==5.10.1"],
     },
     classifiers=[
         "Intended Audience :: Data Scientists/ML Engineers",

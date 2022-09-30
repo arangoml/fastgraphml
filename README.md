@@ -122,11 +122,11 @@ model.graph_util.visualize_embeddings(embeddings, class_mapping=class_names, emb
 We support two types of search for now:
 1. exact search: For precise similarity search but at the cost of scalability.
 2. approx search: For scalable similarity search but at the cost of some precision loss.
-#### Example 1.1
+#### Example 1
 ```python
 model.graph_util.similarity_search(embeddings, top_k_nbors=10, nlist=10, search_type='exact')
 ```
-#### Example 1.2
+#### Example 2
 If nearest_nbors_search=True, store_embeddings method saves generated Graph Embeddings in ArangoDB along with top_k nearest neighbors (node ids with similar embeddings) and their corresponding similarity scores (i.e. cosine distance). 
 ```python
 model.graph_util.store_embeddings(embeddings, collection_name=None, batch_size=100, class_mapping=None, 

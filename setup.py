@@ -23,7 +23,7 @@ setup(
         "tqdm",
         "umap-learn",
         "matplotlib",
-        "numba==0.53.0" # for CPU (used by FAISS)
+        "numba==0.53.0", # for CPU (used by FAISS)
         "matplotlib-inline",
         "seaborn",
         "torch>=1.12.0",
@@ -37,6 +37,10 @@ setup(
     ],
     extras_require={
         "dev": [
+            "black==22.8.0",
+            "mypy==0.981",
+            "flake8==5.0.4",
+            "isort==5.10.1"
         ],
     },
     classifiers=[

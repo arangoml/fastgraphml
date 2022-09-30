@@ -1,12 +1,9 @@
 import shutil
-from pickletools import optimize
 
 import torch
 import torch.nn.functional as F
-import torch_geometric.transforms as T
 from arango.database import Database
 from sklearn.linear_model import LogisticRegression
-from torch.optim import Adam
 from torch_geometric.nn import GCNConv
 
 from ..utils import GraphUtils
@@ -59,12 +56,12 @@ class DMGI(torch.nn.Module):
         super().__init__()
 
         if (
-            database != None or arango_graph != None or metagraph != None
-        ) and pyg_graph != None:
+            database is not None or arango_graph is not None or metagraph is not None
+        ) and pyg_graph is not None:
             msg = "when generating graph embeddings via PyG data objects, database=arango_graph=metagraph=None and vice versa"
             raise Exception(msg)
 
-        if database != None:
+        if database is not None:
             if not issubclass(type(database), Database):
                 msg = "**db** parameter must inherit from arango.database.Database"
                 raise TypeError(msg)

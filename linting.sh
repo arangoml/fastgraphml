@@ -3,5 +3,5 @@
 isort .
 black ./
 # then linting
-# mypy ./
-# flake8
+mypy ./graph_embeddings
+flake8 ./graph_embeddings

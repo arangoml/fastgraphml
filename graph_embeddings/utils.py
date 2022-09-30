@@ -5,20 +5,16 @@ import faiss
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-import torch
 import torch.nn as nn
 import torch_geometric.transforms as T
 import umap
 from adbpyg_adapter import ADBPyG_Adapter
-from arango import ArangoClient
 from rich.progress import track
-from torch_geometric.data import Data
-from tqdm import tqdm
 
 
 # various Graph ML utilites
 class GraphUtils(nn.Module):
-    """Various graph utility hepler methods"""
+    """Various graph utility helper methods"""
 
     def __init__(
         self,
@@ -39,7 +35,7 @@ class GraphUtils(nn.Module):
         self.database = database
         self.metagraph = metagraph
 
-        if pyg_graph == None:
+        if pyg_graph is None:
             self.graph = self.arango_to_pyg(arango_graph, metagraph)
             print(self.graph_stats())
         else:
@@ -48,7 +44,7 @@ class GraphUtils(nn.Module):
 
     # Takes PyG data object and preprocess it
     def pyg_preprocess(self, pyg_data):
-        if self.key_node != None and self.metapaths != None:
+        if self.key_node is not None and self.metapaths is not None:
             if hasattr(pyg_data[self.key_node], "train_mask"):
                 pyg_data = pyg_data
                 pyg_data = T.AddMetaPaths(
@@ -62,7 +58,7 @@ class GraphUtils(nn.Module):
                     self.metapaths, drop_orig_edges=True, drop_unconnected_nodes=True
                 )(pyg_data)
 
-        elif self.key_node != None and self.metapaths == None:
+        elif self.key_node is not None and self.metapaths is None:
             if hasattr(pyg_data[self.key_node], "train_mask"):
                 pyg_data = pyg_data
             else:
@@ -97,7 +93,7 @@ class GraphUtils(nn.Module):
     def graph_stats(
         self,
     ):
-        if self.key_node == None:
+        if self.key_node is None:
             print("Homogeneous Graph Detected ........ \n")
             g_info = {}
             g_info["Nodes"] = self.graph.num_nodes
@@ -132,7 +128,7 @@ class GraphUtils(nn.Module):
             for node in node_types:
                 total_nodes = 0
                 total_nodes = self.graph[node].num_nodes
-                if total_nodes == None:
+                if total_nodes is None:
                     # counting documents in ArangoDB collections and adding it to num_nodes attribute
                     total_nodes = self.database.collection(node).count()
                     self.graph[node].num_nodes = total_nodes
@@ -187,7 +183,7 @@ class GraphUtils(nn.Module):
         :emb_perc (type: float): Percentage of embeddings to visualize, 0.1 means 10% of data will be visualized.
         """
 
-        if node_type != None:
+        if node_type is not None:
             y_np = self.graph[node_type].y.cpu().numpy()
         else:
             y_np = self.graph.y.cpu().numpy()
@@ -198,9 +194,9 @@ class GraphUtils(nn.Module):
         labels = y_np[:num_y]
         umap_embd = umap.UMAP().fit_transform(graph_emb)
         plt.figure(figsize=(8, 8))
-        if class_mapping != None:
+        if class_mapping is not None:
             palette = {}
-            class_names = [class_mapping[l] for l in labels]
+            class_names = [class_mapping[label] for label in labels]
             for n, y in enumerate(set(np.array(class_names))):
                 palette[y] = f"C{n}"
             sns.scatterplot(
@@ -224,7 +220,8 @@ class GraphUtils(nn.Module):
     def similarity_search(
         self, graph_emb, top_k_nbors=10, nlist=10, search_type="exact"
     ):
-        """Performs similarity search in sets of vectors of any size, up to ones that possibly do not fit in RAM using FAISS
+        """Performs similarity search in sets of vectors of any size,
+        up to ones that possibly do not fit in RAM using FAISS
         <https://engineering.fb.com/2017/03/29/data-infrastructure/faiss-a-library-for-efficient-similarity-search/>.
 
         returns dist, nbors
@@ -311,7 +308,7 @@ class GraphUtils(nn.Module):
         """
 
         assert (
-            collection_name != None
+            collection_name is not None
         ), "pass arangodb collection name to store embeddings "
 
         # create document collection with name "collection_name" in arangodb
@@ -323,19 +320,19 @@ class GraphUtils(nn.Module):
         index = 0
         emb_collection = self.database[collection_name]
 
-        if nearest_nbors_search == True:
+        if nearest_nbors_search is True:
             dist, nbors = self.similarity_search(graph_emb)
 
         for idx in track(range(graph_emb.shape[0])):
             insert_doc = {}
             insert_doc["_id"] = collection_name + "/" + str(idx)
             insert_doc["embedding"] = graph_emb[idx].tolist()
-            ## add class names
-            if class_mapping != None and self.key_node == None:
+            # add class names
+            if class_mapping is not None and self.key_node is None:
                 insert_doc["label"] = self.graph.y[idx].item()
                 insert_doc["class_name"] = class_mapping[self.graph.y[idx].item()]
 
-            elif class_mapping != None and self.key_node != None:
+            elif class_mapping is not None and self.key_node is not None:
                 if hasattr(self.graph[node_type], "y"):
                     insert_doc["label"] = self.graph[node_type].y[idx].item()
                     insert_doc["class_name"] = class_mapping[
@@ -344,18 +341,18 @@ class GraphUtils(nn.Module):
                 else:
                     pass
 
-            elif class_mapping == None and self.key_node != None:
+            elif class_mapping is None and self.key_node is not None:
                 if hasattr(self.graph[node_type], "y"):
                     insert_doc["label"] = self.graph[self.key_node].y[idx].item()
                 else:
                     pass
 
-            elif class_mapping == None and self.key_node == None:
+            elif class_mapping is None and self.key_node is None:
                 insert_doc["label"] = self.graph.y[idx].item()
             else:
                 pass
-            ## add top-k nearest neighbours
-            if nearest_nbors_search == True:
+            # add top-k nearest neighbours
+            if nearest_nbors_search is True:
                 insert_doc["cosine_sim"] = dist[idx].tolist()
                 insert_doc["similar_nodes"] = nbors[idx].tolist()
             batch.append(insert_doc)

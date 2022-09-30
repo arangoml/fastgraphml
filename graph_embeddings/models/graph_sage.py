@@ -1,14 +1,10 @@
 import shutil
-from typing import Any, List, Tuple
 
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from arango.database import Database
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
-from torch import Tensor, dropout
 from torch_cluster import random_walk
 from torch_geometric.loader import NeighborSampler as RawNeighborSampler
 from torch_geometric.nn import SAGEConv
@@ -17,6 +13,7 @@ from ..utils import GraphUtils
 
 # check for gpu
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 # neighborhood sampling
 class NeighborSampler(RawNeighborSampler):
@@ -85,12 +82,12 @@ class SAGE(nn.Module):
         super().__init__()
 
         if (
-            database != None or arango_graph != None or metagraph != None
-        ) and pyg_graph != None:
+            database is not None or arango_graph is not None or metagraph is not None
+        ) and pyg_graph is not None:
             msg = "when generating graph embeddings via PyG data objects, database=arango_graph=metagraph=None and vice versa"
             raise Exception(msg)
 
-        if database != None:
+        if database is not None:
             if not issubclass(type(database), Database):
                 msg = "**db** parameter must inherit from arango.database.Database"
                 raise TypeError(msg)
@@ -208,7 +205,7 @@ class SAGE(nn.Module):
             val_acc, test_acc = self.val(model)
 
             print(
-                f"Epoch: {epoch:03d}, Train_Loss: {loss:.4f}, "
+                f"Epoch: {epoch:03d}, Train_Loss: {train_loss:.4f}, "
                 f"Val: {val_acc:.4f}, Test: {test_acc:.4f}"
             )
 

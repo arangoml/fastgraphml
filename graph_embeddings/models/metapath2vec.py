@@ -1,9 +1,6 @@
 import shutil
 
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch_geometric.transforms as T
 from arango.database import Database
 from sklearn.linear_model import LogisticRegression
 from torch_geometric.nn import MetaPath2Vec
@@ -66,12 +63,12 @@ class METAPATH2VEC:
     ):
 
         if (
-            database != None or arango_graph != None or metagraph != None
-        ) and pyg_graph != None:
+            database is not None or arango_graph is not None or metagraph is not None
+        ) and pyg_graph is not None:
             msg = "when generating graph embeddings via PyG data objects, database=arango_graph=metagraph=None and vice versa"
             raise Exception(msg)
 
-        if database != None:
+        if database is not None:
             if not issubclass(type(database), Database):
                 msg = "**db** parameter must inherit from arango.database.Database"
                 raise TypeError(msg)
@@ -149,7 +146,7 @@ class METAPATH2VEC:
         model = model.to(device)
         # returns data loader that creates both positive and negative random walks on the heterogeneous graph.
         loader = model.loader(batch_size=self.batch_size, shuffle=self.shuffle)
-        if self.sparse == True:
+        if self.sparse is True:
             optimizer = torch.optim.SparseAdam(
                 list(model.parameters()), lr=lr, **kwargs
             )

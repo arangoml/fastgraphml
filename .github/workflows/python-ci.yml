@@ -2,7 +2,7 @@ name: CI
 on:
   workflow_dispatch:
   push:
-    branches: [ main, static-checks ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 jobs:

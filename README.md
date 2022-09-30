@@ -17,7 +17,7 @@ pip install git+https://github.com/arangoml/fastgraphml
 
 ### Use Case 1: Generates Graph Embeddings using the graphs stored inside ArangoDB:
 
-#### Example 1.1 Homogneous Graphs
+#### Example Homogneous Graphs
 
 ```python
 from graph_embeddings import SAGE, GAT
@@ -45,7 +45,7 @@ model._train(model, epochs=10) # train
 embeddings = model.get_embeddings(model=model) # get embeddings
 ```
 
-#### Example 1.2 Heterogeneous Graphs
+#### Example Heterogeneous Graphs
 
 ```python
 from graph_embeddings import METAPATH2VEC, DMGI

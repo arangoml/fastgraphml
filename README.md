@@ -21,6 +21,7 @@ pip install git+https://github.com/arangoml/fastgraphml
 
 ```python
 from graph_embeddings import SAGE, GAT
+from graph_embeddings import downstream_tasks 
 from arango import ArangoClient
 
 # Initialize the ArangoDB client.
@@ -49,6 +50,7 @@ embeddings = model.get_embeddings(model=model) # get embeddings
 
 ```python
 from graph_embeddings import METAPATH2VEC, DMGI
+from graph_embeddings import downstream_tasks 
 from arango import ArangoClient
 
 # Initialize the ArangoDB client.
@@ -82,6 +84,7 @@ embeddings = model.get_embeddings() # get embeddings
 
 ```python
 from graph_embeddings import SAGE, GAT
+from graph_embeddings import downstream_tasks 
 from torch_geometric.datasets import Planetoid
 
 # load pyg dataset
@@ -115,7 +118,7 @@ This method helps in visualization of generated Graph Embeddings by reducing the
 class_names = {0: 'Desktops',1: 'Data Storage',2: 'Laptops',3: 'Monitors',4: 'Computer Components',
  5: 'Video Projectors',6: 'Routers',7: 'Tablets',8: 'Networking Products',9: 'Webcams'}
 # with one line of code
-model.graph_util.visualize_embeddings(embeddings, class_mapping=class_names, emb_percent=0.1) 
+downstream_tasks.visualize_embeddings(model.G, embeddings, class_mapping=class_names, emb_percent=0.1) # model.G is PyG data object
 ```
 ### Downstream Task 2: Scalable Similarity Search with Faiss
 [Faiss](https://engineering.fb.com/2017/03/29/data-infrastructure/faiss-a-library-for-efficient-similarity-search/) is a tool developed by Facebook that performs similarity search in sets of vectors of any size, up to ones that possibly do not fit in RAM.
@@ -124,7 +127,7 @@ We support two types of search for now:
 2. approx search: For scalable similarity search but at the cost of some precision loss.
 #### Example 1
 ```python
-model.graph_util.similarity_search(embeddings, top_k_nbors=10, nlist=10, search_type='exact')
+downstream_tasks.similarity_search(embeddings, top_k_nbors=10, nlist=10, search_type='exact')
 ```
 #### Example 2
 If nearest_nbors_search=True, store_embeddings method saves generated Graph Embeddings in ArangoDB along with top_k nearest neighbors (node ids with similar embeddings) and their corresponding similarity scores (i.e. cosine distance). 

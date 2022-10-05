@@ -8,6 +8,7 @@ import numpy as np
 import torch_geometric.transforms as T
 from adbpyg_adapter import ADBPyG_Adapter
 from rich.progress import track    
+from .downstream_tasks.similarity_search import similarity_search
         
 
 # various Graph ML utilites 
@@ -179,7 +180,7 @@ class GraphUtils(nn.Module):
         emb_collection = self.database[collection_name]
 
         if nearest_nbors_search == True:
-            dist, nbors = self.similarity_search(graph_emb)
+            dist, nbors = similarity_search(graph_emb)
 
         for idx in track(range(graph_emb.shape[0])):
             insert_doc = {}

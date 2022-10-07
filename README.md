@@ -3,9 +3,10 @@ Given an input graph it generates Graph Embeddings using Low-Code framework buil
 
 ## Installation
 #### Additional Dependencies
-1. [pytorch](https://pytorch.org/) (CPU or GPU)
-2. [pyg](https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html) (CPU or GPU)
-3. [FAISS](https://github.com/facebookresearch/faiss/blob/main/INSTALL.md) (CPU or GPU)
+1. [pytorch](https://pytorch.org/) 
+2. [pyg](https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html) 
+3. [FAISS](https://github.com/facebookresearch/faiss/blob/main/INSTALL.md) 
+
 Note: For FAISS-CPU one needs numba==0.53.0
 
 #### Latest Release

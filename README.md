@@ -2,6 +2,12 @@
 Given an input graph it generates Graph Embeddings using Low-Code framework built on top of [PyG](https://pytorch-geometric.readthedocs.io/en/latest/). In addition, the framework provides tight integration with  [ArangoDB](https://www.arangodb.com/) which is a scalable, fully managed graph database, document store and search engine in one place. Once Graph Embeddings are generated, they can be used for various downstream machine learning tasks like Node Classification, Link Prediction, Visualisation, Community Detection, Similartiy Search, Recommendation, etc. 
 
 ## Installation
+#### Additional Dependencies
+1. [pytorch](https://pytorch.org/) (CPU or GPU)
+2. [pyg](https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html) (CPU or GPU)
+3. [FAISS](https://github.com/facebookresearch/faiss/blob/main/INSTALL.md) (CPU or GPU)
+Note: For FAISS-CPU one needs numba==0.53.0
+
 #### Latest Release
 ```
 pip install fastgraphml
@@ -9,7 +15,7 @@ pip install fastgraphml
 #### Current State
 ```
 pip install adbpyg-adapter
-pip install git+https://github.com/arangoml/fastgraphml
+git clone https://github.com/arangoml/fastgraphml.git
 
 ```
 

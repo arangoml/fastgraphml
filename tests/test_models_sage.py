@@ -1,19 +1,20 @@
 from .conftest import db
 from graph_embeddings import SAGE
 
-def test_gat():
+# test sage model
+def test_sage():
     metagraph = {
     "vertexCollections": {
-            "Paper": {"x": "features", "y": "label"},
+            "cora_N": {"x": "x", "y": "y"},
         },
         "edgeCollections": {
-            "Cites": {},
+            "cora_E": {},
         },
     }
-    model = SAGE(db, 'graph', metagraph, embedding_size=64)
+    model = SAGE(db, 'graph', metagraph, embedding_size=64) # define model
     model._train(model, epochs=5) # train
     embeddings = model.get_embeddings(model=model) # get embeddings
-
+    # check embeddings size
     assert embeddings.size == int(173312)
 
 

@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Set up pip & install packages
         run: |
-          source ~/anaconda3/etc/profile.d/conda.sh
+          source ~/miniconda3/etc/profile.d/conda.sh 
           conda activate fastgraphml
       - name: Run pytest in conda env
         run: conda run -n fastgraphml pytest 

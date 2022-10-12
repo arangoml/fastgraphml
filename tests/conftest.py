@@ -51,4 +51,4 @@ def pytest_configure(config) -> None:
             "Cites": {},
         },
     }
-    adbpyg.pyg_to_arangodb("Cora_Test", data, {"x": "features", "y": "label"}, overwrite=True)
+    adbpyg.pyg_to_arangodb("Cora_Test", data, metagraph, explicit_metagraph=False, overwrite=True)

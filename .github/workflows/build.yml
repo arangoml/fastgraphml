@@ -14,7 +14,7 @@ jobs:
     name: gpu
     steps:
       - uses: actions/checkout@v2
-      - name: Set up pip & install packages
+      - name: Activating conda env
         run: |
           source ~/miniconda3/etc/profile.d/conda.sh 
           conda activate fastgraphml

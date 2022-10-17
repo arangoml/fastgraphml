@@ -45,11 +45,11 @@ class DMGI(torch.nn.Module):
     num_val = 0.1, num_test = 0.1):
         super().__init__()
 
-        if (database!=None or arango_graph!=None or metagraph!=None) and pyg_graph!=None:
+        if (database is not None or arango_graph is not None or metagraph is not None) and pyg_graph is not None:
             msg = "when generating graph embeddings via PyG data objects, database=arango_graph=metagraph=None and vice versa"
             raise Exception(msg)
 
-        if database!=None:
+        if database is not None:
             if not issubclass(type(database), Database):
                 msg = "**db** parameter must inherit from arango.database.Database"
                 raise TypeError(msg)

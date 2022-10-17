@@ -55,7 +55,7 @@ class GAT(torch.nn.Module):
                 When generating graph embeddings via PyG graphs, database=arango_graph=metagraph=None.
     :embedding_size (type: int): Length of the node embeddings when they are mapped to d-dimensional euclidean space.
     :heads (type: int): Number of attention heads. Model learns to give attention to only important nodes in node's neighborhood.
-    :num_layers (type: int): Number of GraphSage Layers.
+    :num_layers (type: int): Number of GAT Layers.
     :sizes (type: [int, int]): Number of neighbors to select at each layer for every node (uniform random sampling) in order to perform neighborhood sampling. 
     :batch_size (type: int): Number of nodes to be present inside batch along with their neighborhood. Used while performing neighborhood sampling.
     :dropout_perc (type: float): Handles overfitting inside the model

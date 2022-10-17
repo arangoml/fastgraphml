@@ -23,7 +23,7 @@ class GraphUtils(nn.Module):
         self.database = database
         self.metagraph = metagraph
 
-        if pyg_graph == None:
+        if pyg_graph is None:
             self.graph = self.arango_to_pyg(arango_graph, metagraph)
             print(self.graph_stats())
         else:
@@ -38,7 +38,7 @@ class GraphUtils(nn.Module):
         :pyg_data (tpye: PyG data object): PyG data object
         """
 
-        if self.key_node!= None and self.metapaths!= None:     
+        if self.key_node is not None and self.metapaths is not None:     
             if hasattr(pyg_data[self.key_node], 'train_mask'):
                 pyg_data = pyg_data
                 pyg_data = T.AddMetaPaths(self.metapaths, drop_orig_edges=True, drop_unconnected_nodes=True)(pyg_data)
@@ -46,7 +46,7 @@ class GraphUtils(nn.Module):
                 pyg_data = T.RandomNodeSplit(num_val=self.num_val, num_test=self.num_test)(pyg_data)
                 pyg_data = T.AddMetaPaths(self.metapaths, drop_orig_edges=True, drop_unconnected_nodes=True)(pyg_data)
         
-        elif self.key_node!= None and self.metapaths==None:
+        elif self.key_node is not None and self.metapaths is None:
             if hasattr(pyg_data[self.key_node], 'train_mask'):
                 pyg_data = pyg_data
             else:
@@ -79,7 +79,7 @@ class GraphUtils(nn.Module):
 
     # print graph statistics information about input graph for e.g. num of nodes, edges, etc.
     def graph_stats(self,):
-        if self.key_node == None:
+        if self.key_node is None:
             print("Homogeneous Graph Detected ........ \n")
             g_info = {}
             g_info['Nodes'] = self.graph.num_nodes
@@ -112,7 +112,7 @@ class GraphUtils(nn.Module):
             for node in node_types:
                 total_nodes = 0
                 total_nodes = self.graph[node].num_nodes
-                if total_nodes == None:
+                if total_nodes is None:
                     # counting documents in ArangoDB collections and adding it to num_nodes attribute
                     total_nodes = self.database.collection(node).count()
                     self.graph[node].num_nodes = total_nodes
@@ -168,7 +168,7 @@ class GraphUtils(nn.Module):
         2. approx search: For scalable similarity search but at the cost of some precision loss.
         """
 
-        assert collection_name != None, "pass arangodb collection name to store embeddings "
+        assert collection_name is not None, "pass arangodb collection name to store embeddings "
 
         # create document collection with name "collection_name" in arangodb
         if not self.database.has_collection(collection_name):
@@ -187,24 +187,24 @@ class GraphUtils(nn.Module):
             insert_doc["_id"] = collection_name + '/' + str(idx)
             insert_doc["embedding"] = graph_emb[idx].tolist()
             ## add class names
-            if class_mapping!=None and self.key_node==None:
+            if class_mapping is not None and self.key_node is None:
                 insert_doc['label'] = self.graph.y[idx].item()
                 insert_doc['class_name'] = class_mapping[self.graph.y[idx].item()]
 
-            elif class_mapping!=None and self.key_node!=None:
+            elif class_mapping is not None and self.key_node is not None:
                 if hasattr(self.graph[node_type], 'y'):
                     insert_doc['label'] = self.graph[node_type].y[idx].item()
                     insert_doc['class_name'] = class_mapping[self.graph[node_type].y[idx].item()]
                 else:
                     pass
 
-            elif class_mapping==None and self.key_node!=None:
+            elif class_mapping is None and self.key_node is not None:
                 if hasattr(self.graph[node_type], 'y'):
                     insert_doc['label'] = self.graph[self.key_node].y[idx].item()
                 else:
                     pass
 
-            elif class_mapping==None and self.key_node==None:
+            elif class_mapping is None and self.key_node is None:
                 insert_doc['label'] = self.graph.y[idx].item()
             else:
                 pass

@@ -27,8 +27,8 @@ git clone https://github.com/arangoml/fastgraphml.git
 #### Example Homogneous Graphs
 
 ```python
-from graph_embeddings import SAGE, GAT
-from graph_embeddings import downstream_tasks 
+from fastgraphml.graph_embeddings import SAGE, GAT
+from fastgraphml.graph_embeddings import downstream_tasks 
 from arango import ArangoClient
 
 # Initialize the ArangoDB client.
@@ -56,8 +56,8 @@ embeddings = model.get_embeddings(model=model) # get embeddings
 #### Example Heterogeneous Graphs
 
 ```python
-from graph_embeddings import METAPATH2VEC, DMGI
-from graph_embeddings import downstream_tasks 
+from fastgraphml.graph_embeddings import METAPATH2VEC, DMGI
+from fastgraphml.graph_embeddings import downstream_tasks 
 from arango import ArangoClient
 
 # Initialize the ArangoDB client.
@@ -90,8 +90,8 @@ embeddings = model.get_embeddings() # get embeddings
 ### Use Case 2: Generates Graph Embeddings using PyG graphs:
 
 ```python
-from graph_embeddings import SAGE, GAT
-from graph_embeddings import downstream_tasks 
+from fastgraphml.graph_embeddings import SAGE, GAT
+from fastgraphml.graph_embeddings import downstream_tasks 
 from torch_geometric.datasets import Planetoid
 
 # load pyg dataset

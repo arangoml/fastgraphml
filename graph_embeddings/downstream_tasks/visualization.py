@@ -20,7 +20,7 @@ def visualize_embeddings(graph, graph_emb, class_mapping=None, node_type=None, e
     :emb_perc (type: float): Percentage of embeddings to visualize, 0.1 means 10% of data will be visualized.
     """
 
-    if node_type!= None:
+    if node_type is not None:
         y_np = graph[node_type].y.cpu().numpy()
     else:
         y_np = graph.y.cpu().numpy()
@@ -31,7 +31,7 @@ def visualize_embeddings(graph, graph_emb, class_mapping=None, node_type=None, e
     labels = y_np[:num_y]
     umap_embd = umap.UMAP().fit_transform(graph_emb)
     plt.figure(figsize=(8, 8))
-    if class_mapping!=None:
+    if class_mapping is not None:
         palette = {}
         class_names = [class_mapping[l] for l in labels]
         for n, y in enumerate(set(np.array(class_names))):

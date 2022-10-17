@@ -1,5 +1,5 @@
 from .conftest import db
-from graph_embeddings import SAGE
+from fastgraphml.graph_embeddings import SAGE
 
 # test sage model
 def test_sage():

@@ -1,4 +1,3 @@
-from pickletools import optimize
 import torch
 import torch.nn.functional as F
 from sklearn.linear_model import LogisticRegression
@@ -33,7 +32,11 @@ class DMGI(torch.nn.Module):
         :pyg_graph (type: PyG data object): It generates graph embeddings using PyG graphs (via PyG data objects) directy rather than ArangoDB graphs.
                     When generating graph embeddings via PyG graphs, database=arango_graph=metagraph=None.
         :embedding_size (type: int): Length of the node embeddings when they are mapped to d-dimensional euclidean space.
-        :dropout_perc (type: float): Handles overfitting inside the model
+        :dropout_perc (type: float): Handles overfitting inside the model.
+        :transform (type: torch_geometric.transforms): It is used to transform PyG data objects. Various transformation methods can be chained together using Compose.
+                    for e.g. transform = T.Compose([
+                            T.NormalizeFeatures(),
+                            T.RandomNodeSplit(num_val=0.2, num_test=0.1)])   
         :num_val (type: float): Percentage of nodes selected for validation set.
         :num_test (type: float): Percentage of nodes selected for test set.
         
@@ -42,7 +45,7 @@ class DMGI(torch.nn.Module):
 
     def __init__(self, database = None, arango_graph = None, metagraph = None,
      metapaths = None, key_node=None, pyg_graph = None, embedding_size=64, dropout_perc = 0.5,
-    num_val = 0.1, num_test = 0.1):
+     transform = None, num_val = 0.1, num_test = 0.1):
         super().__init__()
 
         if (database is not None or arango_graph is not None or metagraph is not None) and pyg_graph is not None:
@@ -56,7 +59,7 @@ class DMGI(torch.nn.Module):
 
         # arango to PyG
         self.graph_util = GraphUtils(arango_graph, metagraph, database, pyg_graph, 
-        num_val, num_test, key_node, metapaths)
+        num_val, num_test, transform, key_node, metapaths)
         # get PyG graph
         G = self.graph_util.graph
         G = G.to(device)

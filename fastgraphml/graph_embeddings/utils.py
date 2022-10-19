@@ -14,7 +14,8 @@ from .downstream_tasks.similarity_search import similarity_search
 # various Graph ML utilites 
 class GraphUtils(nn.Module):
     """Various graph utility hepler methods"""
-    def __init__(self, arango_graph, metagraph, database, pyg_graph, num_val, num_test, key_node=None, metapaths=None):
+    def __init__(self, arango_graph, metagraph, database, pyg_graph,
+        num_val, num_test, transform, key_node=None, metapaths=None):
         super().__init__()
         self.num_val = num_val
         self.num_test = num_test
@@ -22,6 +23,7 @@ class GraphUtils(nn.Module):
         self.metapaths = metapaths
         self.database = database
         self.metagraph = metagraph
+        self.transform = transform
 
         if pyg_graph is None:
             self.graph = self.arango_to_pyg(arango_graph, metagraph)
@@ -37,26 +39,38 @@ class GraphUtils(nn.Module):
         
         :pyg_data (tpye: PyG data object): PyG data object
         """
-
+        # hetero graph
         if self.key_node is not None and self.metapaths is not None:     
             if hasattr(pyg_data[self.key_node], 'train_mask'):
                 pyg_data = pyg_data
                 pyg_data = T.AddMetaPaths(self.metapaths, drop_orig_edges=True, drop_unconnected_nodes=True)(pyg_data)
+                if self.transform is not None:
+                    pyg_data = self.transform(pyg_data)
             else:
                 pyg_data = T.RandomNodeSplit(num_val=self.num_val, num_test=self.num_test)(pyg_data)
                 pyg_data = T.AddMetaPaths(self.metapaths, drop_orig_edges=True, drop_unconnected_nodes=True)(pyg_data)
+                if self.transform is not None:
+                    pyg_data = self.transform(pyg_data)
         
         elif self.key_node is not None and self.metapaths is None:
             if hasattr(pyg_data[self.key_node], 'train_mask'):
                 pyg_data = pyg_data
+                if self.transform is not None:
+                    pyg_data = self.transform(pyg_data)
             else:
                 pyg_data = T.RandomNodeSplit(num_val=self.num_val, num_test=self.num_test)(pyg_data)
-
+                if self.transform is not None:
+                    pyg_data = self.transform(pyg_data)
+        # homo graph
         else:
             if hasattr(pyg_data, 'train_mask'):
                 pyg_data = pyg_data
+                if self.transform is not None:
+                    pyg_data = self.transform(pyg_data)
             else:
                 pyg_data = T.RandomNodeSplit(num_val=self.num_val, num_test=self.num_test)(pyg_data)
+                if self.transform is not None:
+                    pyg_data = self.transform(pyg_data)
        
         return pyg_data
 

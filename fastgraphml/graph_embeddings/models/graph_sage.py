@@ -1,4 +1,3 @@
-from typing import Any, List, Tuple
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -57,6 +56,10 @@ class SAGE(nn.Module):
     :batch_size (type: int): Number of nodes to be present inside batch along with their neighborhood. Used while performing neighborhood sampling.
     :dropout_perc (type: float): Handles overfitting inside the model
     :shuffle (type: bool): If set to True, it shuffles data before performing neighborhood sampling.
+    :transform (type: torch_geometric.transforms): It is used to transform PyG data objects. Various transformation methods can be chained together using Compose.
+               for e.g. transform = T.Compose([
+                        T.NormalizeFeatures(),
+                        T.RandomNodeSplit(num_val=0.2, num_test=0.1)])         
     :num_val (type: float): Percentage of nodes selected for validation set.
     :num_test (type: float): Percentage of nodes selected for test set.
     
@@ -66,8 +69,9 @@ class SAGE(nn.Module):
      <https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html#torch_geometric.nn.conv.SAGEConv>
     """
 
-    def __init__(self, database = None, arango_graph = None, metagraph = None,  pyg_graph = None, embedding_size = 64, 
-        num_layers = 2, sizes = [10, 10], batch_size = 256, dropout_perc = 0.5, shuffle = True, num_val = 0.1, num_test = 0.1 , **kwargs):
+    def __init__(self, database = None, arango_graph = None, metagraph = None, 
+        pyg_graph = None, embedding_size = 64, num_layers = 2, sizes = [10, 10], batch_size = 256, 
+        dropout_perc = 0.5, shuffle = True, transform = None, num_val = 0.1, num_test = 0.1, **kwargs):
         super().__init__()
 
         if (database is not None or arango_graph is not None or metagraph is not None) and pyg_graph is not None:
@@ -80,7 +84,7 @@ class SAGE(nn.Module):
                 raise TypeError(msg)
 
         # arango to PyG
-        self.graph_util = GraphUtils(arango_graph, metagraph, database, pyg_graph, num_val, num_test)
+        self.graph_util = GraphUtils(arango_graph, metagraph, database, pyg_graph, num_val, num_test, transform)
         # get PyG graph
         G = self.graph_util.graph
         self.in_channels = G.num_node_features

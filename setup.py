@@ -3,6 +3,23 @@ from setuptools import setup
 with open("./README.md") as fp:
     long_description = fp.read()
 
+    
+dev_requirements = [
+    "black>=22.8.0",
+    "pytest>=7.1.3",
+    "sphinx>=5.1.1",
+    "pre-commit>=2.20.0",
+    "types-requests>=2.28.11.2",
+    "flake8>=3.9.2",
+    "pytest>=7.1.3",
+    "pytest-cov>=4.0.0",
+    "isort>=5.9.3",
+    "mypy>=0.930",
+    "types-setuptools",
+    "bandit>=1.7.4",
+]
+
+
 setup(
     name="fastgraphml",
     author="Sachin Sharma",
@@ -37,7 +54,7 @@ setup(
         "setuptools>=45",
     ],
     extras_require={
-        "dev": [],
+        "dev": dev_requirements,
     },
     classifiers=[
         "Intended Audience :: Data Scientists/ML Engineers",

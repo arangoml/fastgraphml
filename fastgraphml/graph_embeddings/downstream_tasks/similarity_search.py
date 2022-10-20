@@ -5,7 +5,7 @@ def similarity_search(graph_emb, top_k_nbors=10, nlist=10, search_type="exact"):
     """Performs similarity search in sets of vectors of any size, up to ones that
     possibly do not fit in RAM using FAISS.
 
-    <https://engineering.fb.com/2017/03/29/data-infrastructure/faiss-a-library-for-efficient-similarity-search/>.
+    <https://engineering.fb.com/2017/03/29/data-infrastructure/faiss-a-library-for-efficient-similarity-search/>.  # noqa: E501
 
     returns dist, nbors
         nbors: node ids with similar embeddings
@@ -13,12 +13,14 @@ def similarity_search(graph_emb, top_k_nbors=10, nlist=10, search_type="exact"):
 
     :graph_emb (type: 2D numpy array): Numpy array of size (n, embedding_size),
     n: number of nodes in graph
-    embedding_size: Length of the node embeddings when they are mapped to d-dimensional euclidean space.
+    embedding_size: Length of the node embeddings when they are mapped to
+        d-dimensional euclidean space.
     :top_k_nbors (type: int): Returns top-k nearest neighbors of all embeddings.
     :nlist (type: int): Number of clusters to be generated.
     :search_type (type: str): We support two types of search for now:
     1. exact search: For precise similarity search but at the cost of scalability.
-    2. approx search: For scalable similarity search but at the cost of some precision loss.
+    2. approx search: For scalable similarity search but at the cost of some precision
+        loss.
     """
 
     emb_dim = graph_emb.shape[1]

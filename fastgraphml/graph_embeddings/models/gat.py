@@ -1,13 +1,10 @@
 import shutil
 
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from arango.database import Database
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
-from torch import Tensor
 from torch.nn import Linear as Lin
 from torch_cluster import random_walk
 from torch_geometric.loader import NeighborSampler as RawNeighborSampler
@@ -17,6 +14,7 @@ from ..utils import GraphUtils
 
 # check for gpu
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 # neighborhood sampling
 class NeighborSampler(RawNeighborSampler):
@@ -41,36 +39,47 @@ class NeighborSampler(RawNeighborSampler):
 
 
 class GAT(torch.nn.Module):
-    """GATCONV model modified from '<https://github.com/pyg-team/pytorch_geometric/blob/
-    6267de93c6b04f46a306aa58e414de330ef9bb10/examples/gat.py>'.
+    """GATCONV model modified from '<https://github.com/pyg-team/pytorch_geometric/blob/6267de93c6b04f46a306aa58e414de330ef9bb10/examples/gat.py>'.  # noqa: E501
 
     :database (type: Database): A python-arango database instance.
-    :arango_graph (type: str): The name of ArangoDB graph which we want to export to PyG.
-    :metagraph (type: dict): It exports ArangoDB graphs to PyG data objects. We define metagraph as
-                a dictionary defining vertex & edge collections to import to PyG, along
-                with collection-level specifications to indicate which ArangoDB attributes will become PyG features/labels.
-                It also supports different encoders such as identity and categorical encoder on database attributes. Detailed information regarding different
-                use cases and metagraph definitons can be found on adbpyg_adapter github page i.e <https://github.com/arangoml/pyg-adapter>.
-    :pyg_graph (type: PyG data object): It generates graph embeddings using PyG graphs (via PyG data objects) directy rather than ArangoDB graphs.
-                When generating graph embeddings via PyG graphs, database=arango_graph=metagraph=None.
-    :embedding_size (type: int): Length of the node embeddings when they are mapped to d-dimensional euclidean space.
-    :heads (type: int): Number of attention heads. Model learns to give attention to only important nodes in node's neighborhood.
+    :arango_graph (type: str): The name of ArangoDB graph which we want to export to PyG
+    :metagraph (type: dict): It exports ArangoDB graphs to PyG data objects. We define
+        metagraph as a dictionary defining vertex & edge collections to import to PyG,
+        along with collection-level specifications to indicate which ArangoDB attributes
+        will become PyG features/labels. It also supports different encoders such as
+        identity and categorical encoder on database attributes. Detailed information
+        regarding different use cases and metagraph definitons can be found on
+        adbpyg_adapter github page i.e <https://github.com/arangoml/pyg-adapter>.
+    :pyg_graph (type: PyG data object): It generates graph embeddings using PyG graphs
+        (via PyG data objects) directy rather than ArangoDB graphs.
+        When generating graph embeddings via PyG graphs,
+        database=arango_graph=metagraph=None.
+    :embedding_size (type: int): Length of the node embeddings when they are mapped to
+        d-dimensional euclidean space.
+    :heads (type: int): Number of attention heads. Model learns to give attention to
+        only important nodes in node's neighborhood.
     :num_layers (type: int): Number of GAT Layers.
-    :sizes (type: [int, int]): Number of neighbors to select at each layer for every node (uniform random sampling) in order to perform neighborhood sampling.
-    :batch_size (type: int): Number of nodes to be present inside batch along with their neighborhood. Used while performing neighborhood sampling.
+    :sizes (type: [int, int]): Number of neighbors to select at each layer for every
+        node (uniform random sampling) in order to perform neighborhood sampling.
+    :batch_size (type: int): Number of nodes to be present inside batch along with
+        their neighborhood. Used while performing neighborhood sampling.
     :dropout_perc (type: float): Handles overfitting inside the model
-    :shuffle (type: bool): If set to True, it shuffles data before performing neighborhood sampling.
-    :transform (type: torch_geometric.transforms): It is used to transform PyG data objects. Various transformation methods can be chained together using Compose.
+    :shuffle (type: bool): If set to True, it shuffles data before performing
+        neighborhood sampling.
+    :transform (type: torch_geometric.transforms): It is used to transform PyG data
+        objects. Various transformation methods can be chained together using Compose.
                for e.g. transform = T.Compose([
                         T.NormalizeFeatures(),
                         T.RandomNodeSplit(num_val=0.2, num_test=0.1)])
     :num_val (type: float): Percentage of nodes selected for validation set.
     :num_test (type: float): Percentage of nodes selected for test set.
 
-    Note: After selecting the percentage for validation and test nodes, rest percentage of the nodes are considered as training nodes.
+    Note: After selecting the percentage for validation and test nodes,
+    rest percentage of the nodes are considered as training nodes.
 
-    :**kwargs: Additional arguments of the GATConv class. For more arguments please refer the following link
-     <https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html#torch_geometric.nn.conv.GATConv>
+    :**kwargs: Additional arguments of the GATConv class. For more arguments please
+    refer the following link
+     <https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html#torch_geometric.nn.conv.GATConv>  # noqa: E501
     """
 
     def __init__(
@@ -96,7 +105,7 @@ class GAT(torch.nn.Module):
         if (
             database is not None or arango_graph is not None or metagraph is not None
         ) and pyg_graph is not None:
-            msg = "when generating graph embeddings via PyG data objects, database=arango_graph=metagraph=None and vice versa"
+            msg = "when generating graph embeddings via PyG data objects, database=arango_graph=metagraph=None and vice versa"  # noqa: E501
             raise Exception(msg)
 
         if database is not None:
@@ -194,12 +203,15 @@ class GAT(torch.nn.Module):
         """Train GraphML model.
 
         :model: Graph embedding model.
-        :ckp_path (type: str): Path to save model's latest checkpoints (i.e. at each epoch). Pytorch models are saved with .pt file extension.
-         By default it saves model in cwd.
-        :best_model_path (type: str): Path to save model whenever there is an increase in validation accuracy. By default it saves model in cwd.
+        :ckp_path (type: str): Path to save model's latest checkpoints
+            (i.e. at each epoch). Pytorch models are saved with .pt file extension.
+            By default it saves model in cwd.
+        :best_model_path (type: str): Path to save model whenever there is an increase
+            in validation accuracy. By default it saves model in cwd.
         :epochs (type: int): Number of times training data go through the model.
         :lr (type: float): Learning rate.
-        :**kwargs: Additional arguments for the Adam optimizer for e.g. weight_decay, betas, etc.
+        :**kwargs: Additional arguments for the Adam optimizer for
+            e.g. weight_decay, betas, etc.
         """
 
         model = model.to(device)
@@ -225,7 +237,7 @@ class GAT(torch.nn.Module):
 
                 total_loss += float(loss) * out.size(0)
             # print unsupervised GraphSage loss
-            train_loss = total_loss / self.num_nodes
+            # train_loss = total_loss / self.num_nodes
 
             ##################
             # validate model #
@@ -283,7 +295,8 @@ class GAT(torch.nn.Module):
     def get_embeddings(self, model):
         """Returns Graph Embeddings of size (n, embedding_size),
            n: number of nodes in graph.
-           embedding_size: Length of the node embeddings when they are mapped to d-dimensional euclidean space.
+           embedding_size: Length of the node embeddings when they are mapped to
+               d-dimensional euclidean space.
 
         model: Graph embedding model.
         """

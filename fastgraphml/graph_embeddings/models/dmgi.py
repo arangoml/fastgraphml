@@ -2,10 +2,8 @@ import shutil
 
 import torch
 import torch.nn.functional as F
-import torch_geometric.transforms as T
 from arango.database import Database
 from sklearn.linear_model import LogisticRegression
-from torch.optim import Adam
 from torch_geometric.nn import GCNConv
 
 from ..utils import GraphUtils
@@ -15,37 +13,45 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 class DMGI(torch.nn.Module):
-    """Deep Multiplex Graph Infomax (DMGI) model modified from '<https://github.com/pyg-
-    team/pytorch_geometric/blob/6267de93c6b04f46a306aa58e414de330ef9bb10/examples/hetero
-    /dmgi_unsup.py>'.
+    """Deep Multiplex Graph Infomax (DMGI) model
+    modified from '<https://github.com/pyg-team/pytorch_geometric/blob/6267de93c6b04f46a306aa58e414de330ef9bb10/examples/hetero/dmgi_unsup.py>'.  # noqa: E501
 
     :database (type: Database): A python-arango database instance.
-    :arango_graph (type: str): The name of ArangoDB graph which we want to export to PyG.
-    :metagraph (type: dict): It exports ArangoDB graphs to PyG data objects. We define metagraph as
-                a dictionary defining vertex & edge collections to import to PyG, along
-                with collection-level specifications to indicate which ArangoDB attributes will become PyG features/labels.
-                It also supports different encoders such as identity and categorical encoder on database attributes. Detailed information regarding different
-                use cases and metagraph definitons can be found on adbpyg_adapter github page i.e <https://github.com/arangoml/pyg-adapter>.
-    :metapaths (type: list(list[Tuple(str,str,str))]): It is described as list of list of tuples  . Adds additional edge types to a Hetero Graph between the source node type and the
-    destination node type of a given metapath. The metapath defined as (src_node_type, rel_type, dst_node_type) tuples.
-    e.g. Adding two metapaths (reference: <https://pytorch-geometric.readthedocs.io/en/latest/modules/transforms.html#torch_geometric.transforms.AddMetaPaths>):
+    :arango_graph (type: str): The name of ArangoDB graph which we want to export to PyG
+    :metagraph (type: dict): It exports ArangoDB graphs to PyG data objects. We define
+        metagraph as a dictionary defining vertex & edge collections to import to PyG,
+        along with collection-level specifications to indicate which ArangoDB attributes
+        will become PyG features/labels. It also supports different encoders such as
+        identity and categorical encoder on database attributes. Detailed information
+        regarding different use cases and metagraph definitons can be found on
+        adbpyg_adapter github page i.e <https://github.com/arangoml/pyg-adapter>.
+    :metapaths (type: list(list[Tuple(str,str,str))]): It is described as list of list
+        of tuples. Adds additional edge types to a Hetero Graph between the source node
+        type and the destination node type of a given metapath.
+        The metapath defined as (src_node_type, rel_type, dst_node_type) tuples.
+    e.g. Adding two metapaths (reference: <https://pytorch-geometric.readthedocs.io/en/latest/modules/transforms.html#torch_geometric.transforms.AddMetaPaths>):# noqa: E501
     # 1. From "paper" to "paper" through "conference"
     # 2. From "author" to "conference" through "paper"
     metapaths = [[("paper", "conference"), ("conference", "paper")],
          [("author", "paper"), ("paper", "conference")]]
-    :key_node (type: str): Node type on which we want to test the performance of generated graph embeddings. Performance is tested using node classification task.
-    :pyg_graph (type: PyG data object): It generates graph embeddings using PyG graphs (via PyG data objects) directy rather than ArangoDB graphs.
-                When generating graph embeddings via PyG graphs, database=arango_graph=metagraph=None.
-    :embedding_size (type: int): Length of the node embeddings when they are mapped to d-dimensional euclidean space.
+    :key_node (type: str): Node type on which we want to test the performance of
+        generated graph embeddings. Performance is tested using node classification task
+    :pyg_graph (type: PyG data object): It generates graph embeddings using PyG graphs
+        (via PyG data objects) directy rather than ArangoDB graphs. When generating
+        graph embeddings via PyG graphs, database=arango_graph=metagraph=None.
+    :embedding_size (type: int): Length of the node embeddings when they are mapped to
+        d-dimensional euclidean space.
     :dropout_perc (type: float): Handles overfitting inside the model.
-    :transform (type: torch_geometric.transforms): It is used to transform PyG data objects. Various transformation methods can be chained together using Compose.
+    :transform (type: torch_geometric.transforms): It is used to transform PyG data
+        objects. Various transformation methods can be chained together using Compose.
                 for e.g. transform = T.Compose([
                         T.NormalizeFeatures(),
                         T.RandomNodeSplit(num_val=0.2, num_test=0.1)])
     :num_val (type: float): Percentage of nodes selected for validation set.
     :num_test (type: float): Percentage of nodes selected for test set.
 
-    Note: After selecting the percentage for validation and test nodes, rest percentage of the nodes are considered as training nodes.
+    Note: After selecting the percentage for validation and test nodes,
+    rest percentage of the nodes are considered as training nodes.
     """
 
     def __init__(
@@ -67,7 +73,7 @@ class DMGI(torch.nn.Module):
         if (
             database is not None or arango_graph is not None or metagraph is not None
         ) and pyg_graph is not None:
-            msg = "when generating graph embeddings via PyG data objects, database=arango_graph=metagraph=None and vice versa"
+            msg = "when generating graph embeddings via PyG data objects, database=arango_graph=metagraph=None and vice versa"  # noqa: E501
             raise Exception(msg)
 
         if database is not None:
@@ -173,12 +179,15 @@ class DMGI(torch.nn.Module):
         """Train GraphML model.
 
         :model: Graph embedding model.
-        :ckp_path (type: str): Path to save model's latest checkpoints (i.e. at each epoch). Pytorch models are saved with .pt file extension.
-         By default it saves model in cwd.
-        :best_model_path (type: str): Path to save model whenever there is an increase in validation accuracy. By default it saves model in cwd.
+        :ckp_path (type: str): Path to save model's latest checkpoints
+            (i.e. at each epoch). Pytorch models are saved with .pt file extension.
+            By default it saves model in cwd.
+        :best_model_path (type: str): Path to save model whenever there is an increase
+            in validation accuracy. By default it saves model in cwd.
         :epochs (type: int): Number of times training data go through the model.
         :lr (type: float): Learning rate.
-        :**kwargs: Additional arguments for the Adam optimizer for e.g. weight_decay, betas, etc.
+        :**kwargs: Additional arguments for the Adam optimizer for
+            e.g. weight_decay, betas, etc.
         """
 
         model = model.to(device)
@@ -258,7 +267,8 @@ class DMGI(torch.nn.Module):
 
            Embeddings size: (n, embedding_size), where
            n: number of nodes present for key node inside graph.
-           embedding_size: Length of the node embeddings when they are mapped to d-dimensional euclidean space.
+           embedding_size: Length of the node embeddings when they are mapped to
+               d-dimensional euclidean space.
 
         model: Graph embedding model.
         """

@@ -1,9 +1,6 @@
 import shutil
 
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch_geometric.transforms as T
 from arango.database import Database
 from sklearn.linear_model import LogisticRegression
 from torch_geometric.nn import MetaPath2Vec
@@ -15,30 +12,41 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 class METAPATH2VEC:
-    """metapath2vec model modified from '<https://github.com/pyg-team/pytorch_geometric/
-    blob/6267de93c6b04f46a306aa58e414de330ef9bb10/examples/hetero/metapath2vec.py>'.
+    """metapath2vec model modified from '<https://github.com/pyg-team/pytorch_geometric/blob/6267de93c6b04f46a306aa58e414de330ef9bb10/examples/hetero/metapath2vec.py>'.  # noqa: E501
 
     :database (type: Database): A python-arango database instance.
-    :arango_graph (type: str): The name of ArangoDB graph which we want to export to PyG.
-    :metagraph (type: Dict): It exports ArangoDB graphs to PyG data objects. We define metagraph as
-                a dictionary defining vertex & edge collections to import to PyG, along
-                with collection-level specifications to indicate which ArangoDB attributes will become PyG features/labels.
-                It also supports different encoders such as identity and categorical encoder on database attributes. Detailed information regarding different
-                use cases and metagraph definitons can be found on adbpyg_adapter github page i.e <https://github.com/arangoml/pyg-adapter>.
-    :metapaths (type: list[Tuple(str,str,str)]): The metapath defined as (src_node_type, rel_type, dst_node_type) tuples. M2V uses metapaths to
-    perform random walks on the graph and then uses skip-grapm to compute graph embeddings.
-    :key_node (type: str): Node type on which we want to test the performance of generated graph embeddings. Performance is tested using node classification task.
-    :pyg_graph (type: PyG data object): It generates graph embeddings using PyG graphs (via PyG data objects) directy rather than ArangoDB graphs.
-                When generating graph embeddings via PyG graphs, database=arango_graph=metagraph=None.
-    :embedding_size (type: int): Length of the node embeddings when they are mapped to d-dimensional euclidean space.
+    :arango_graph (type: str): The name of ArangoDB graph which we want to export to PyG
+    :metagraph (type: Dict): It exports ArangoDB graphs to PyG data objects. We define
+        metagraph as a dictionary defining vertex & edge collections to import to PyG,
+        along with collection-level specifications to indicate which ArangoDB attributes
+        will become PyG features/labels. It also supports different encoders such as
+        identity and categorical encoder on database attributes. Detailed information
+        regarding different use cases and metagraph definitons can be found on
+        adbpyg_adapter github page i.e <https://github.com/arangoml/pyg-adapter>.
+    :metapaths (type: list[Tuple(str,str,str)]): The metapath defined as
+        (src_node_type, rel_type, dst_node_type) tuples. M2V uses metapaths to
+        perform random walks on the graph and then uses skip-grapm to compute
+        graph embeddings.
+    :key_node (type: str): Node type on which we want to test the performance of
+        generated graph embeddings. Performance is tested using node classification task.
+    :pyg_graph (type: PyG data object): It generates graph embeddings using PyG graphs
+        (via PyG data objects) directy rather than ArangoDB graphs. When generating graph
+        embeddings via PyG graphs, database=arango_graph=metagraph=None.
+    :embedding_size (type: int): Length of the node embeddings when they are mapped to
+        d-dimensional euclidean space.
     :walk_length (type: int): The walk length.
-    :context_size (type: int): The actual context size which is considered for positive samples.
-                  This parameter increases the effective sampling rate by reusing samples across different source nodes.
+    :context_size (type: int): The actual context size which is considered for positive
+        samples. This parameter increases the effective sampling rate by reusing samples
+        across different source nodes.
     :walks_per_node (type: float): The number of walks to sample for each node.
-    :num_negative_samples (type: bool): The number of negative samples to use for each positive sample.
-    :num_nodes_dict (type: Dict): Dictionary holding the number of nodes for each node type.
-    :sparse (type: bool): If set to True, gradients w.r.t. to the weight matrix will be sparse.
-    :transform (type: torch_geometric.transforms): It is used to transform PyG data objects. Various transformation methods can be chained together using Compose.
+    :num_negative_samples (type: bool): The number of negative samples to use for each
+        positive sample.
+    :num_nodes_dict (type: Dict): Dictionary holding the number of nodes for each
+        node type.
+    :sparse (type: bool): If set to True, gradients w.r.t. to the weight matrix will be
+        sparse.
+    :transform (type: torch_geometric.transforms): It is used to transform PyG data
+        objects. Various transformation methods can be chained together using Compose.
                for e.g. transform = T.Compose([
                         T.NormalizeFeatures(),
                         T.RandomNodeSplit(num_val=0.2, num_test=0.1)]).
@@ -46,10 +54,11 @@ class METAPATH2VEC:
     :num_test (type: float): Percentage of nodes selected for test set.
     :shuffle (type: bool): If set to True, it shuffles data before training.
 
-    Note: After selecting the percentage for validation and test nodes, rest percentage of the nodes are considered as training nodes.
+    Note: After selecting the percentage for validation and test nodes,
+    rest percentage of the nodes are considered as training nodes.
 
     :Detailed information about Metapath2Vec args can be found in
-    <https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html#torch_geometric.nn.models.MetaPath2Vec>
+    <https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html#torch_geometric.nn.models.MetaPath2Vec>  # noqua: E501
     """
 
     def __init__(
@@ -77,7 +86,7 @@ class METAPATH2VEC:
         if (
             database is not None or arango_graph is not None or metagraph is not None
         ) and pyg_graph is not None:
-            msg = "when generating graph embeddings via PyG data objects, database=arango_graph=metagraph=None and vice versa"
+            msg = "when generating graph embeddings via PyG data objects, database=arango_graph=metagraph=None and vice versa"  # noqa: E501
             raise Exception(msg)
 
         if database is not None:
@@ -138,14 +147,18 @@ class METAPATH2VEC:
     ):
         """Train GraphML model.
 
-        :ckp_path (type: str): Path to save model's latest checkpoints (i.e. at each epoch). Pytorch models are saved with .pt file extension.
-         By default it saves model in cwd.
-        :best_model_path (type: str): Path to save model whenever there is an increase in validation accuracy. By default it saves model in cwd.
+        :ckp_path (type: str): Path to save model's latest checkpoints
+            (i.e. at each epoch). Pytorch models are saved with .pt file extension.
+            By default it saves model in cwd.
+        :best_model_path (type: str): Path to save model whenever there is an increase
+            in validation accuracy. By default it saves model in cwd.
         :epochs (type: int): Number of times training data go through the model.
         :lr (type: float): Learning rate.
         : log_steps (type: int): Logs epochs and loss.
-        : eval_steps (type: int): Evaluate model performance using validation and test data.
-        :**kwargs: Additional arguments for the Adam optimizer for e.g. weight_decay, betas, etc.
+        : eval_steps (type: int): Evaluate model performance using validation and
+            test data.
+        :**kwargs: Additional arguments for the Adam optimizer for
+            e.g. weight_decay, betas, etc.
         """
 
         # model
@@ -163,9 +176,10 @@ class METAPATH2VEC:
 
         # transfer model to gpu
         model = model.to(device)
-        # returns data loader that creates both positive and negative random walks on the heterogeneous graph.
+        # returns data loader that creates both positive and negative
+        # random walks on the heterogeneous graph.
         loader = model.loader(batch_size=self.batch_size, shuffle=self.shuffle)
-        if self.sparse == True:
+        if self.sparse is True:
             optimizer = torch.optim.SparseAdam(
                 list(model.parameters()), lr=lr, **kwargs
             )
@@ -278,12 +292,14 @@ class METAPATH2VEC:
         self,
     ):
         """Returns Graph Embeddings as a dictionary {node_type1:emb1, node_type2:emb2,
+
         ....} where embeddings for each node type is present, if that node type is used
         in metapath.
 
         Embeddings size: (n, embedding_size), where
         n: number of nodes present for specific type inside graph.
-        embedding_size: Length of the node embeddings when they are mapped to d-dimensional euclidean space.
+        embedding_size: Length of the node embeddings when they are mapped to
+            d-dimensional euclidean space.
         """
 
         emb = {}

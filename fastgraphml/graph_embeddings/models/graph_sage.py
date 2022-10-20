@@ -1,14 +1,11 @@
-import shutil
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from arango.database import Database
 from sklearn.linear_model import LogisticRegression
-from torch.nn import Linear as Lin
 from torch_cluster import random_walk
 from torch_geometric.loader import NeighborSampler as RawNeighborSampler
-from torch_geometric.nn import GATConv
+from torch_geometric.nn import SAGEConv
 
 from ..utils import GraphUtils
 
@@ -28,8 +25,6 @@ class NeighborSampler(RawNeighborSampler):
         batch = torch.tensor(batch)
         row, col, _ = self.adj_t.coo()
 
-        # For each node in `batch`, we sample a direct neighbor (as positive
-        # example) and a random node (as negative example):
         pos_batch = random_walk(row, col, batch, walk_length=1, coalesced=False)[:, 1]
         neg_batch = torch.randint(
             0, self.adj_t.size(1), (batch.numel(),), dtype=torch.long
@@ -38,8 +33,8 @@ class NeighborSampler(RawNeighborSampler):
         return super().sample(batch)
 
 
-class GAT(torch.nn.Module):
-    """GATCONV model modified from '<https://github.com/pyg-team/pytorch_geometric/blob/6267de93c6b04f46a306aa58e414de330ef9bb10/examples/gat.py>'
+class SAGE(nn.Module):
+    """GraphSage model modified from '<https://github.com/pyg-team/pytorch_geometric/blob/6267de93c6b04f46a306aa58e414de330ef9bb10/examples/graph_sage_unsup.py>'
 
     :database (type: Database): A python-arango database instance.
     :arango_graph (type: str): The name of ArangoDB graph which we want to export to PyG.
@@ -51,19 +46,23 @@ class GAT(torch.nn.Module):
     :pyg_graph (type: PyG data object): It generates graph embeddings using PyG graphs (via PyG data objects) directy rather than ArangoDB graphs.
                 When generating graph embeddings via PyG graphs, database=arango_graph=metagraph=None.
     :embedding_size (type: int): Length of the node embeddings when they are mapped to d-dimensional euclidean space.
-    :heads (type: int): Number of attention heads. Model learns to give attention to only important nodes in node's neighborhood.
     :num_layers (type: int): Number of GraphSage Layers.
     :sizes (type: [int, int]): Number of neighbors to select at each layer for every node (uniform random sampling) in order to perform neighborhood sampling.
+    If set -1 all neighbors are included in layer l.
     :batch_size (type: int): Number of nodes to be present inside batch along with their neighborhood. Used while performing neighborhood sampling.
     :dropout_perc (type: float): Handles overfitting inside the model
     :shuffle (type: bool): If set to True, it shuffles data before performing neighborhood sampling.
+    :transform (type: torch_geometric.transforms): It is used to transform PyG data objects. Various transformation methods can be chained together using Compose.
+               for e.g. transform = T.Compose([
+                        T.NormalizeFeatures(),
+                        T.RandomNodeSplit(num_val=0.2, num_test=0.1)])
     :num_val (type: float): Percentage of nodes selected for validation set.
     :num_test (type: float): Percentage of nodes selected for test set.
 
     Note: After selecting the percentage for validation and test nodes, rest percentage of the nodes are considered as training nodes.
 
-    :**kwargs: Additional arguments of the GATConv class. For more arguments please refer the following link
-     <https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html#torch_geometric.nn.conv.GATConv>
+    :**kwargs: Additional arguments of the SAGEConv class. For more arguments please refer the following link
+     <https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html#torch_geometric.nn.conv.SAGEConv>
     """
 
     def __init__(
@@ -73,12 +72,12 @@ class GAT(torch.nn.Module):
         metagraph=None,
         pyg_graph=None,
         embedding_size=64,
-        heads=2,
         num_layers=2,
         sizes=[10, 10],
         batch_size=256,
         dropout_perc=0.5,
         shuffle=True,
+        transform=None,
         num_val=0.1,
         num_test=0.1,
         **kwargs,
@@ -96,9 +95,9 @@ class GAT(torch.nn.Module):
                 msg = "**db** parameter must inherit from arango.database.Database"
                 raise TypeError(msg)
 
-        # arango to Pyg
+        # arango to PyG
         self.graph_util = GraphUtils(
-            arango_graph, metagraph, database, pyg_graph, num_val, num_test
+            arango_graph, metagraph, database, pyg_graph, num_val, num_test, transform
         )
         # get PyG graph
         G = self.graph_util.graph
@@ -113,7 +112,6 @@ class GAT(torch.nn.Module):
         self.batch_size = batch_size
         self.dropout_perc = dropout_perc
         self.shuffle = shuffle
-
         # create train loader
         self.train_loader = NeighborSampler(
             self.edge_index,
@@ -122,44 +120,28 @@ class GAT(torch.nn.Module):
             shuffle=self.shuffle,
             num_nodes=self.num_nodes,
         )
-
-        # defining GAT layers
         self.convs = nn.ModuleList()
         for i in range(num_layers):
-            if i == 0:
-                self.convs.append(
-                    GATConv(self.in_channels, self.hidden_channels, heads)
-                )
-            else:
-                self.convs.append(
-                    GATConv(heads * self.hidden_channels, self.hidden_channels, heads)
-                )
-
-        # adding skip connections
-        self.skips = torch.nn.ModuleList()
-        for i in range(num_layers):
-            if i == 0:
-                self.skips.append(Lin(self.in_channels, self.hidden_channels * heads))
-            else:
-                self.skips.append(
-                    Lin(self.hidden_channels * heads, self.hidden_channels * heads)
-                )
+            self.in_channels = self.in_channels if i == 0 else self.hidden_channels
+            self.convs.append(
+                SAGEConv(self.in_channels, self.hidden_channels, **kwargs)
+            )
 
     def forward(self, x, adjs):
         for i, (edge_index, _, size) in enumerate(adjs):
             x_target = x[: size[1]]  # Target nodes are always placed first.
             x = self.convs[i]((x, x_target), edge_index)
-            x = x + self.skips[i](x_target)
             if i != self.num_layers - 1:
-                x = F.relu(x)
+                x = x.relu()
                 x = F.dropout(x, p=self.dropout_perc, training=self.training)
         return x
 
+    # encoder
     def full_forward(self, x, edge_index):
         for i, conv in enumerate(self.convs):
-            x = conv(x, edge_index) + self.skips[i](x)
+            x = conv(x, edge_index)
             if i != self.num_layers - 1:
-                x = F.relu(x)
+                x = x.relu()
                 x = F.dropout(x, p=self.dropout_perc, training=self.training)
         return x
 

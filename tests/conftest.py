@@ -42,7 +42,5 @@ def pytest_configure(config) -> None:
     dataset = Planetoid("./", "Cora")
     data = dataset[0]
     # heterodata = data.to_heterogeneous(node_type_names=['Paper'], edge_types_names=[('Paper', 'Cites', 'Paper')])
-    # db.delete_graph("Cora_Test", drop_collections=True, ignore_missing=True)
-    adbpyg.pyg_to_arangodb(
-        "Cora_Test", data, {"x": "features", "y": "label"}, overwrite=True
-    )
+    db.delete_graph("cora", drop_collections=True, ignore_missing=True)
+    adbpyg.pyg_to_arangodb("cora", data, overwrite=True)

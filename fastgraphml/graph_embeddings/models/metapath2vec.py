@@ -14,6 +14,36 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 class METAPATH2VEC:
     """metapath2vec model modified from '<https://github.com/pyg-team/pytorch_geometric/blob/6267de93c6b04f46a306aa58e414de330ef9bb10/examples/hetero/metapath2vec.py>'
 
+        :database (type: Database): A python-arango database instance.
+        :arango_graph (type: str): The name of ArangoDB graph which we want to export to PyG.
+        :metagraph (type: Dict): It exports ArangoDB graphs to PyG data objects. We define metagraph as
+                    a dictionary defining vertex & edge collections to import to PyG, along
+                    with collection-level specifications to indicate which ArangoDB attributes will become PyG features/labels.
+                    It also supports different encoders such as identity and categorical encoder on database attributes. Detailed information regarding different
+                    use cases and metagraph definitons can be found on adbpyg_adapter github page i.e <https://github.com/arangoml/pyg-adapter>.
+        :metapaths (type: list[Tuple(str,str,str)]): The metapath defined as (src_node_type, rel_type, dst_node_type) tuples. M2V uses metapaths to
+        perform random walks on the graph and then uses skip-grapm to compute graph embeddings.
+        :key_node (type: str): Node type on which we want to test the performance of generated graph embeddings. Performance is tested using node classification task.
+        :pyg_graph (type: PyG data object): It generates graph embeddings using PyG graphs (via PyG data objects) directy rather than ArangoDB graphs.
+                    When generating graph embeddings via PyG graphs, database=arango_graph=metagraph=None.
+        :embedding_size (type: int): Length of the node embeddings when they are mapped to d-dimensional euclidean space.
+        :walk_length (type: int): The walk length.
+        :context_size (type: int): The actual context size which is considered for positive samples.
+                      This parameter increases the effective sampling rate by reusing samples across different source nodes.
+        :walks_per_node (type: float): The number of walks to sample for each node.
+        :num_negative_samples (type: bool): The number of negative samples to use for each positive sample.
+        :num_nodes_dict (type: Dict): Dictionary holding the number of nodes for each node type.
+        :sparse (type: bool): If set to True, gradients w.r.t. to the weight matrix will be sparse.
+        :transform (type: torch_geometric.transforms): It is used to transform PyG data objects. Various transformation methods can be chained together using Compose.
+                   for e.g. transform = T.Compose([
+                            T.NormalizeFeatures(),
+                            T.RandomNodeSplit(num_val=0.2, num_test=0.1)]).
+        :num_val (type: float): Percentage of nodes selected for validation set.
+        :num_test (type: float): Percentage of nodes selected for test set.
+        :shuffle (type: bool): If set to True, it shuffles data before training.
+
+        Note: After selecting the percentage for validation and test nodes, rest percentage of the nodes are considered as training nodes.
+
     :database (type: Database): A python-arango database instance.
     :arango_graph (type: str): The name of ArangoDB graph which we want to export to PyG.
     :metagraph (type: dict): It exports ArangoDB graphs to PyG data objects. We define metagraph as
@@ -34,11 +64,6 @@ class METAPATH2VEC:
     :num_negative_samples (type: bool): The number of negative samples to use for each positive sample
     :num_val (type: float): Percentage of nodes selected for validation set.
     :num_test (type: float): Percentage of nodes selected for test set.
-
-    Note: After selecting the percentage for validation and test nodes, rest percentage of the nodes are considered as training nodes.
-
-    :Detailed information about Metapath2Vec args can be found in
-    <https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html#torch_geometric.nn.models.MetaPath2Vec>
     """
 
     def __init__(
@@ -57,6 +82,7 @@ class METAPATH2VEC:
         num_nodes_dict=None,
         sparse=False,
         batch_size=64,
+        transform=None,
         num_val=0.1,
         num_test=0.1,
         shuffle=True,
@@ -75,7 +101,14 @@ class METAPATH2VEC:
 
         # arango tp pyg
         self.graph_util = GraphUtils(
-            arango_graph, metagraph, database, pyg_graph, num_val, num_test, key_node
+            arango_graph,
+            metagraph,
+            database,
+            pyg_graph,
+            num_val,
+            num_test,
+            transform,
+            key_node,
         )
         # get PyG graph
         G = self.graph_util.graph

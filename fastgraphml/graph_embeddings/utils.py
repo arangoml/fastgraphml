@@ -1,20 +1,15 @@
 # utils file
-import numpy as np
-import torch
 import torch.nn as nn
 import torch_geometric.transforms as T
 from adbpyg_adapter import ADBPyG_Adapter
-from arango import ArangoClient
 from rich.progress import track
-from torch_geometric.data import Data
-from tqdm import tqdm
 
 from .downstream_tasks.similarity_search import similarity_search
 
 
 # various Graph ML utilites
 class GraphUtils(nn.Module):
-    """Various graph utility hepler methods"""
+    """Various graph utility hepler methods."""
 
     def __init__(
         self,
@@ -45,7 +40,8 @@ class GraphUtils(nn.Module):
             print(self.graph_stats())
 
     def pyg_preprocess(self, pyg_data):
-        """Takes PyG data object and preprocess it. By default it performs following preporocessing:
+        """Takes PyG data object and preprocess it.
+        By default it performs following preporocessing:
         1. AddMetaPaths
         2. Perform Random Node Split i.e. splitting data into train, val and test set.
 
@@ -99,12 +95,16 @@ class GraphUtils(nn.Module):
     def arango_to_pyg(self, arango_graph, metagraph):
         """Exports ArangoDB graph to PyG data object using ArangoDB PyG Adapter.
 
-        :arango_graph (type: str): The name of ArangoDB graph which we want to export to PyG.
-        :metagraph (type: dict): It exports ArangoDB graphs to PyG data objects. We define metagraph as
-            a dictionary defining vertex & edge collections to import to PyG, along
-            with collection-level specifications to indicate which ArangoDB attributes will become PyG features/labels.
-            It also supports different encoders such as identity and categorical encoder on database attributes. Detailed information regarding different
-            use cases and metagraph definitons can be found on adbpyg_adapter github page i.e <https://github.com/arangoml/pyg-adapter>.
+        :arango_graph (type: str): The name of ArangoDB graph which we want to
+        export to PyG.
+        :metagraph (type: dict): It exports ArangoDB graphs to PyG data objects.
+            We define metagraph as a dictionary defining vertex & edge collections
+            to import to PyG, along with collection-level specifications to
+            indicate which ArangoDB attributes will become PyG features/labels.
+            It also supports different encoders such as identity and categorical
+            encoder on database attributes. Detailed information regarding different
+            use cases and metagraph definitons can be found on adbpyg_adapter github
+            page i.e <https://github.com/arangoml/pyg-adapter>.
         """
 
         adbpyg = ADBPyG_Adapter(self.database)
@@ -112,7 +112,8 @@ class GraphUtils(nn.Module):
         pyg_obj = self.pyg_preprocess(pyg_obj)
         return pyg_obj
 
-    # print graph statistics information about input graph for e.g. num of nodes, edges, etc.
+    # print graph statistics information about input graph for
+    # e.g. num of nodes, edges, etc.
     def graph_stats(
         self,
     ):
@@ -152,7 +153,8 @@ class GraphUtils(nn.Module):
                 total_nodes = 0
                 total_nodes = self.graph[node].num_nodes
                 if total_nodes is None:
-                    # counting documents in ArangoDB collections and adding it to num_nodes attribute
+                    # counting documents in ArangoDB collections and adding it
+                    # to num_nodes attribute
                     total_nodes = self.database.collection(node).count()
                     self.graph[node].num_nodes = total_nodes
                 if hasattr(self.graph[node], "train_mask"):
@@ -207,21 +209,30 @@ class GraphUtils(nn.Module):
 
         :graph_emb (type: 2D numpy array): Numpy array of size (n, embedding_size),
         n: number of nodes in graph
-        embedding_size: Length of the node embeddings when they are mapped to d-dimensional euclidean space.
-        :collection_name (type: str): Name of the document collection where we want to store graph embeddings.
+        embedding_size: Length of the node embeddings when they are mapped to
+            d-dimensional euclidean space.
+        :collection_name (type: str): Name of the document collection where we want to
+            store graph embeddings.
         :batch_size (type: int): Batch size.
-        :class_mapping (type: dict): It is a dictionary where class names are mapped to integer labels.
-        If class_mappings are not provided the method uses integers labels as legend inside the figure. for e.g.
-        {0: 'Desktops',1: 'Data Storage',2: 'Laptops',3: 'Monitors',4: 'Computer Components',
-        5: 'Video Projectors',6: 'Routers',7: 'Tablets',8: 'Networking Products',9: 'Webcams'} # amazon computer dataset.
-        :node_type (type: str):  Node type for which we want to store embeddings. Used to store Hetero graph embeddings.
-        :nearest_nbors_search (type: bool): If nearest_nbors_search=True, store_embeddings method saves generated Graph Embeddings in ArangoDB
-        along with top_k nearest neighbors (node ids with similar embeddings) and their corresponding similarity scores (i.e. cosine distance).
+        :class_mapping (type: dict): It is a dictionary where class names are mapped
+            to integer labels.
+        If class_mappings are not provided the method uses integers labels as legend
+        inside the figure. for e.g.
+        {0: 'Desktops',1: 'Data Storage',2: 'Laptops',3: 'Monitors',
+        4: 'Computer Components', 5: 'Video Projectors',6: 'Routers',7: 'Tablets',
+        8: 'Networking Products',9: 'Webcams'} # amazon computer dataset.
+        :node_type (type: str):  Node type for which we want to store embeddings.
+            Used to store Hetero graph embeddings.
+        :nearest_nbors_search (type: bool): If nearest_nbors_search=True,
+            store_embeddings method saves generated Graph Embeddings in ArangoDB
+            along with top_k nearest neighbors (node ids with similar embeddings)
+            and their corresponding similarity scores (i.e. cosine distance).
         :top_k_nbors (type: int): Returns top-k nearest neighbors of all embeddings.
         :nlist (type: int): Number of clusters to be generated.
         :search_type (type: str): We support two types of search for now:
         1. exact search: For precise similarity search but at the cost of scalability.
-        2. approx search: For scalable similarity search but at the cost of some precision loss.
+        2. approx search: For scalable similarity search but at the cost of some
+            precision loss.
         """
 
         assert (
@@ -237,14 +248,14 @@ class GraphUtils(nn.Module):
         index = 0
         emb_collection = self.database[collection_name]
 
-        if nearest_nbors_search == True:
+        if nearest_nbors_search is True:
             dist, nbors = similarity_search(graph_emb)
 
         for idx in track(range(graph_emb.shape[0])):
             insert_doc = {}
             insert_doc["_id"] = collection_name + "/" + str(idx)
             insert_doc["embedding"] = graph_emb[idx].tolist()
-            ## add class names
+            # add class names
             if class_mapping is not None and self.key_node is None:
                 insert_doc["label"] = self.graph.y[idx].item()
                 insert_doc["class_name"] = class_mapping[self.graph.y[idx].item()]
@@ -268,8 +279,8 @@ class GraphUtils(nn.Module):
                 insert_doc["label"] = self.graph.y[idx].item()
             else:
                 pass
-            ## add top-k nearest neighbours
-            if nearest_nbors_search == True:
+            # add top-k nearest neighbours
+            if nearest_nbors_search is True:
                 insert_doc["cosine_sim"] = dist[idx].tolist()
                 insert_doc["similar_nodes"] = nbors[idx].tolist()
             batch.append(insert_doc)

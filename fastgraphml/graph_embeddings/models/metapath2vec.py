@@ -15,7 +15,8 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 class METAPATH2VEC:
-    """metapath2vec model modified from '<https://github.com/pyg-team/pytorch_geometric/blob/6267de93c6b04f46a306aa58e414de330ef9bb10/examples/hetero/metapath2vec.py>'
+    """metapath2vec model modified from '<https://github.com/pyg-team/pytorch_geometric/
+    blob/6267de93c6b04f46a306aa58e414de330ef9bb10/examples/hetero/metapath2vec.py>'.
 
     :database (type: Database): A python-arango database instance.
     :arango_graph (type: str): The name of ArangoDB graph which we want to export to PyG.
@@ -240,8 +241,9 @@ class METAPATH2VEC:
 
     @torch.no_grad()
     def val(self, model):
-        """Tests the performance of a generated graph embeddings using Node Classification as a downstream task.
-        Performance is tested on a node type (associated with labels) mentioned using key_node argument.
+        """Tests the performance of a generated graph embeddings using Node
+        Classification as a downstream task. Performance is tested on a node type
+        (associated with labels) mentioned using key_node argument.
 
         returns validation and test accuracy on key node.
 
@@ -275,8 +277,10 @@ class METAPATH2VEC:
     def get_embeddings(
         self,
     ):
-        """Returns Graph Embeddings as a dictionary {node_type1:emb1, node_type2:emb2, ....}
-        where embeddings for each node type is present, if that node type is used in metapath.
+        """Returns Graph Embeddings as a dictionary {node_type1:emb1, node_type2:emb2,
+        ....} where embeddings for each node type is present, if that node type is used
+        in metapath.
+
         Embeddings size: (n, embedding_size), where
         n: number of nodes present for specific type inside graph.
         embedding_size: Length of the node embeddings when they are mapped to d-dimensional euclidean space.

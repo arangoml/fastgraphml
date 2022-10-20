@@ -3,7 +3,7 @@ from setuptools import setup
 with open("./README.md") as fp:
     long_description = fp.read()
 
-    
+
 dev_requirements = [
     "black>=22.8.0",
     "pytest>=7.1.3",
@@ -24,7 +24,7 @@ setup(
     name="fastgraphml",
     author="Sachin Sharma",
     author_email="sachin@arangodb.com",
-    description="Given an input graph the library generates graph embeddings using Low-Code built on top of PyG",
+    description="Given an input graph the library generates graph embeddings using Low-Code built on top of PyG",  # noqa: E501
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/arangoml/fastgraphml",

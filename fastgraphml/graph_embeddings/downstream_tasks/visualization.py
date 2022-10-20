@@ -9,7 +9,8 @@ import umap
 def visualize_embeddings(
     graph, graph_emb, class_mapping=None, node_type=None, emb_percent=0.1
 ):
-    """Performs dimensionality reduction (2D) and visualization of graph embeddings using U-Map
+    """Performs dimensionality reduction (2D) and visualization of graph embeddings
+    using U-Map.
 
     :graph (type: PyG data object): PyG data object which can be accessed using model.G inside the framework.
     :graph_emb (type: 2D numpy array): Numpy array of size (n, embedding_size),

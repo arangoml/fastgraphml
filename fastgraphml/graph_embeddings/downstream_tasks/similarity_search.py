@@ -2,7 +2,9 @@ import faiss
 
 
 def similarity_search(graph_emb, top_k_nbors=10, nlist=10, search_type="exact"):
-    """Performs similarity search in sets of vectors of any size, up to ones that possibly do not fit in RAM using FAISS
+    """Performs similarity search in sets of vectors of any size, up to ones that
+    possibly do not fit in RAM using FAISS.
+
     <https://engineering.fb.com/2017/03/29/data-infrastructure/faiss-a-library-for-efficient-similarity-search/>.
 
     returns dist, nbors

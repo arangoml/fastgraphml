@@ -19,8 +19,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # neighborhood sampling
 class NeighborSampler(RawNeighborSampler):
-    """For each node in batch, it sample a direct neighbor (as positive
-    example) and a random node (as negative example):
+    """For each node in batch, it sample a direct neighbor (as positive example) and a
+    random node (as negative example):
 
     returns sampled neighborhood
     """
@@ -38,7 +38,8 @@ class NeighborSampler(RawNeighborSampler):
 
 
 class SAGE(nn.Module):
-    """GraphSage model modified from '<https://github.com/pyg-team/pytorch_geometric/blob/6267de93c6b04f46a306aa58e414de330ef9bb10/examples/graph_sage_unsup.py>'
+    """GraphSage model modified from '<https://github.com/pyg-team/pytorch_geometric/blo
+    b/6267de93c6b04f46a306aa58e414de330ef9bb10/examples/graph_sage_unsup.py>'.
 
     :database (type: Database): A python-arango database instance.
     :arango_graph (type: str): The name of ArangoDB graph which we want to export to PyG.
@@ -241,7 +242,8 @@ class SAGE(nn.Module):
 
     @torch.no_grad()
     def val(self, model):
-        """Tests the performance of a generated graph embeddings using Node Classification as a downstream task.
+        """Tests the performance of a generated graph embeddings using Node
+        Classification as a downstream task.
 
         returns validation and test accuracy.
 

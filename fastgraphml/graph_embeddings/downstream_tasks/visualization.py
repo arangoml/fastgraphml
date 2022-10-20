@@ -1,13 +1,16 @@
-import umap
-import matplotlib.pyplot as plt
-import seaborn as sns
 import math
+
+import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
+import umap
 
 
-def visualize_embeddings(graph, graph_emb, class_mapping=None, node_type=None, emb_percent=0.1):
+def visualize_embeddings(
+    graph, graph_emb, class_mapping=None, node_type=None, emb_percent=0.1
+):
     """Performs dimensionality reduction (2D) and visualization of graph embeddings using U-Map
-    
+
     :graph (type: PyG data object): PyG data object which can be accessed using model.G inside the framework.
     :graph_emb (type: 2D numpy array): Numpy array of size (n, embedding_size),
     n: number of nodes in graph,
@@ -24,7 +27,7 @@ def visualize_embeddings(graph, graph_emb, class_mapping=None, node_type=None, e
         y_np = graph[node_type].y.cpu().numpy()
     else:
         y_np = graph.y.cpu().numpy()
-        
+
     num_nodes = math.floor(graph_emb.shape[0] * emb_percent)
     num_y = math.floor(y_np.shape[0] * emb_percent)
     graph_emb = graph_emb[:num_nodes]
@@ -35,15 +38,19 @@ def visualize_embeddings(graph, graph_emb, class_mapping=None, node_type=None, e
         palette = {}
         class_names = [class_mapping[l] for l in labels]
         for n, y in enumerate(set(np.array(class_names))):
-            palette[y] = f'C{n}'
-        sns.scatterplot(x=umap_embd.T[0], y=umap_embd.T[1], hue=np.array(class_names), palette=palette)
-        plt.legend(bbox_to_anchor=(1,1), loc='upper left')
+            palette[y] = f"C{n}"
+        sns.scatterplot(
+            x=umap_embd.T[0],
+            y=umap_embd.T[1],
+            hue=np.array(class_names),
+            palette=palette,
+        )
+        plt.legend(bbox_to_anchor=(1, 1), loc="upper left")
         plt.savefig("./umap_embd_visualization.png", dpi=120)
     else:
         palette = {}
         for n, y in enumerate(set(labels)):
-            palette[y] = f'C{n}'
+            palette[y] = f"C{n}"
         sns.scatterplot(x=umap_embd.T[0], y=umap_embd.T[1], hue=labels, palette=palette)
-        plt.legend(bbox_to_anchor=(1,1), loc='upper left')
+        plt.legend(bbox_to_anchor=(1, 1), loc="upper left")
         plt.savefig("./umap_embd_visualization.png", dpi=120)
-        

@@ -1,10 +1,10 @@
 # configuration test
+from adbpyg_adapter import ADBPyG_Adapter
 from arango import ArangoClient
 from arango.database import StandardDatabase
 from arango.http import DefaultHTTPClient
-
-from adbpyg_adapter import ADBPyG_Adapter
 from torch_geometric.datasets import Planetoid
+
 
 def pytest_addoption(parser) -> None:
     parser.addoption("--url", action="store", default="http://localhost:8529")

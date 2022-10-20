@@ -11,8 +11,15 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/arangoml/fastgraphml",
-    keywords=["arangodb", "pyg", "graph deep learning" ,"graph embeddings", "pytorch geometric",
-    "graph machine learning", "graph neural networks"],
+    keywords=[
+        "arangodb",
+        "pyg",
+        "graph deep learning",
+        "graph embeddings",
+        "pytorch geometric",
+        "graph machine learning",
+        "graph neural networks",
+    ],
     packages=["graph_embeddings"],
     include_package_data=True,
     python_requires=">=3.8",
@@ -30,8 +37,7 @@ setup(
         "setuptools>=45",
     ],
     extras_require={
-        "dev": [
-        ],
+        "dev": [],
     },
     classifiers=[
         "Intended Audience :: Data Scientists/ML Engineers",

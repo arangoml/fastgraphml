@@ -9,20 +9,6 @@ env:
   PACKAGE_DIR: fastgraphml
   TESTS_DIR: tests
 jobs:
-  build:
-    runs-on: self-hosted
-    defaults:
-      run:
-        shell: bash -l {0}
-    name: gpu
-    steps:
-      - uses: actions/checkout@v2
-      - name: Activating conda env
-        run: |
-          source ~/miniconda3/etc/profile.d/conda.sh 
-          conda activate fastgraphml
-      - name: Run pytest in conda env
-        run: conda run -n fastgraphml pytest 
   lint:
     runs-on: ubuntu-latest
     strategy:
@@ -70,4 +56,4 @@ jobs:
       - name: Setup pip
         run: python -m pip install --upgrade pip setuptools wheel
       - name: Run pytest
-        run: pytest --cov=${{env.PACKAGE_DIR}} --cov-report xml --cov-report term-missing -v --color=yes --no-cov-on-fail --code-highlight=yes --cov-fail-under=75
+        run: conda run -n fastgraphml pytest --cov=${{env.PACKAGE_DIR}} --cov-report xml --cov-report term-missing -v --color=yes --no-cov-on-fail --code-highlight=yes --cov-fail-under=75

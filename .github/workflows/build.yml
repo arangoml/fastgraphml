@@ -2,9 +2,9 @@ name: build
 on:
   workflow_dispatch:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 env:
   PACKAGE_DIR: fastgraphml
   TESTS_DIR: tests

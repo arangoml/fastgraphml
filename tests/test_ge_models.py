@@ -1,0 +1,89 @@
+from .conftest import db
+from fastgraphml.graph_embeddings import SAGE, GAT, METAPATH2VEC, DMGI
+from fastgraphml.graph_embeddings import downstream_tasks
+
+# test sage model
+def test_sage():
+    metagraph = {
+    "vertexCollections": {
+            "cora_N": {"x": "x", "y": "y"},
+        },
+        "edgeCollections": {
+            "cora_E": {},
+        },
+    }
+    model = SAGE(db, 'graph', metagraph, embedding_size=64) # define model
+    model._train(model, epochs=2) # train
+    embeddings = model.get_embeddings(model=model) # get embeddings
+    # check embeddings size
+    assert embeddings.size == int(173312)
+    # check similarity search
+    dist, nbors = downstream_tasks.similarity_search(embeddings, top_k_nbors=10, nlist=10, search_type='exact')
+    assert nbors.size == int(29788)
+    # check similarity search
+    dist, nbors = downstream_tasks.similarity_search(embeddings, top_k_nbors=10, nlist=10, search_type='approx')
+    assert nbors.size == int(29788)
+    # check vis
+    class_names = {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f', 6: 'g'}
+    downstream_tasks.visualize_embeddings(model.G, embeddings, class_mapping=class_names)
+
+# test gat model
+def test_gat():
+    metagraph = {
+    "vertexCollections": {
+            "cora_N": {"x": "x", "y": "y"},
+        },
+        "edgeCollections": {
+            "cora_E": {},
+        },
+    }
+    model = GAT(db, 'graph', metagraph, embedding_size=64, heads=1) # define model
+    model._train(model, epochs=2) # train
+    embeddings = model.get_embeddings(model=model) # get embeddings
+    # check embeddings size
+    assert embeddings.size == int(173312)
+
+def test_m2v():
+    metagraph = {
+    "vertexCollections": {
+    
+        "movie": { "x": "x", "y": "y"},  
+        "director": {"x": "x"},
+        "actor": {"x": "x"},
+    },
+    "edgeCollections": {
+        "to": {},
+    },
+    }
+    metapaths = [('movie', 'to','actor'),
+             ('actor', 'to', 'movie'), ] # MAM # co-actor relationship
+    
+    model = METAPATH2VEC(db, 'imdb', metagraph, metapaths, key_node='movie', embedding_size=4,
+                     walk_length=5, context_size=6, walks_per_node=5, num_negative_samples=5,
+                     sparse=True)
+    model._train(epochs=2, lr=0.03) # train
+    embeddings = model.get_embeddings()
+    # check embeddings size
+    assert embeddings['movie'].size == int(17112)
+
+def test_dmgi():
+    metagraph = {
+    "vertexCollections": {
+    
+        "movie": { "x": "x", "y": "y"},  
+        "director": {"x": "x"},
+        "actor": {"x": "x"},
+    },
+    "edgeCollections": {
+        "to": {},
+    },
+    }
+    metapaths = [
+        [('movie', 'actor'), ('actor', 'movie')]
+        ]  # MAM  
+    model = DMGI(db, 'imdb', metagraph, metapaths, key_node='movie', embedding_size=4)
+    model._train(model, epochs=2, lr=0.0005)
+    embeddings = model.get_embeddings(model=model)
+    # check embeddings size
+    assert embeddings['movie'].size == int(17112)
+    downstream_tasks.visualize_embeddings(model.G, embeddings['movie'], node_type='movie')

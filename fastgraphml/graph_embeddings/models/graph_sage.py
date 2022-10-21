@@ -1,5 +1,8 @@
 import shutil
 
+from typing import Dict, Tuple, Callable, List, Any
+from torch_geometric.data import Data
+from torch import Tensor
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -23,7 +26,7 @@ class NeighborSampler(RawNeighborSampler):
     returns sampled neighborhood
     """
 
-    def sample(self, batch):
+    def sample(self, batch: int):
         batch = torch.tensor(batch)
         row, col, _ = self.adj_t.coo()
 
@@ -77,23 +80,9 @@ class SAGE(nn.Module):
      <https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html#torch_geometric.nn.conv.SAGEConv> # noqa: E501
     """
 
-    def __init__(
-        self,
-        database=None,
-        arango_graph=None,
-        metagraph=None,
-        pyg_graph=None,
-        embedding_size=64,
-        num_layers=2,
-        sizes=[10, 10],
-        batch_size=256,
-        dropout_perc=0.5,
-        shuffle=True,
-        transform=None,
-        num_val=0.1,
-        num_test=0.1,
-        **kwargs,
-    ):
+    def __init__(self, database: Database = None, arango_graph: str = None, metagraph: Dict = None, 
+        pyg_graph: Data = None, embedding_size: int = 64, num_layers: int = 2, sizes: Tuple[int, int] = [10, 10], batch_size: int = 256, 
+        dropout_perc: float = 0.5, shuffle: bool = True, transform: List[Callable] = None, num_val: float = 0.1, num_test: float = 0.1, **kwargs):
         super().__init__()
 
         if (
@@ -139,7 +128,7 @@ class SAGE(nn.Module):
                 SAGEConv(self.in_channels, self.hidden_channels, **kwargs)
             )
 
-    def forward(self, x, adjs):
+    def forward(self, x: Tensor, adjs: Tensor) -> Tensor:
         for i, (edge_index, _, size) in enumerate(adjs):
             x_target = x[: size[1]]  # Target nodes are always placed first.
             x = self.convs[i]((x, x_target), edge_index)
@@ -149,7 +138,7 @@ class SAGE(nn.Module):
         return x
 
     # encoder
-    def full_forward(self, x, edge_index):
+    def full_forward(self, x: Tensor, edge_index: Tensor) -> Tensor:
         for i, conv in enumerate(self.convs):
             x = conv(x, edge_index)
             if i != self.num_layers - 1:
@@ -159,7 +148,7 @@ class SAGE(nn.Module):
 
     # save checkpoints whenever there is an increase in validation accuracy
     @staticmethod
-    def save_checkpoints(state, is_best, ckp_path, best_model_path):
+    def save_checkpoints(state: Dict, is_best: bool, ckp_path: str, best_model_path: str):
         file_path = ckp_path
         torch.save(state, file_path)
         # if it is a best model, min train loss
@@ -168,15 +157,7 @@ class SAGE(nn.Module):
             # copy best checkpoint file to best model path
             shutil.copyfile(file_path, best_file_path)
 
-    def _train(
-        self,
-        model,
-        ckp_path="./latest_model_checkpoint.pt",
-        best_model_path="./best_model.pt",
-        epochs=51,
-        lr=0.001,
-        **kwargs,
-    ):
+    def _train(self, model: Any, ckp_path: str = "./latest_model_checkpoint.pt", best_model_path: str = "./best_model.pt", epochs: int = 51, lr: float = 0.001, **kwargs):
         """Train GraphML model.
 
         :model: Graph embedding model.
@@ -251,10 +232,9 @@ class SAGE(nn.Module):
                 best_acc = val_acc
 
     @torch.no_grad()
-    def val(self, model):
-        """Tests the performance of a generated graph embeddings using Node
-        Classification as a downstream task.
-
+    def val(self, model: Any) -> Tuple[float, float]:
+        """Tests the performance of a generated graph embeddings using Node Classification as a downstream task.
+        
         returns validation and test accuracy.
 
         model: Graph embedding model.
@@ -269,7 +249,7 @@ class SAGE(nn.Module):
         return val_acc, test_acc
 
     @torch.no_grad()
-    def get_embeddings(self, model):
+    def get_embeddings(self, model: Any) -> Tensor:
         """Returns Graph Embeddings of size (n, embedding_size),
            n: number of nodes in graph.
            embedding_size: Length of the node embeddings when they are mapped to

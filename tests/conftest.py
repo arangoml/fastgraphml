@@ -2,7 +2,9 @@
 from adbpyg_adapter import ADBPyG_Adapter
 from arango import ArangoClient
 from arango.http import DefaultHTTPClient
-from torch_geometric.datasets import Planetoid
+
+from adbpyg_adapter import ADBPyG_Adapter
+from torch_geometric.datasets import Planetoid, IMDB
 
 
 def pytest_addoption(parser) -> None:
@@ -35,13 +37,19 @@ def pytest_configure(config) -> None:
     db = ArangoClient(hosts=con["url"], http_client=NoTimeoutHTTPClient()).db(
         con["dbName"], con["username"], con["password"], verify=True
     )
-
     adbpyg = ADBPyG_Adapter(db)
-
-    dataset = Planetoid("./", "Cora")
-    data = dataset[0]
-    # heterodata = data.to_heterogeneous(
-    #     node_type_names=['Paper'],
-    #     edge_types_names=[('Paper', 'Cites', 'Paper')])
-    db.delete_graph("cora", drop_collections=True, ignore_missing=True)
-    adbpyg.pyg_to_arangodb("cora", data, overwrite=True)
+    # loading cora dataset (Homogeneous)
+    dataset_cora = Planetoid("./", "Cora")[0]
+    if db.has_graph('cora'):
+        db.delete_graph("cora", drop_collections=True, ignore_missing=True)
+        adbpyg.pyg_to_arangodb("cora", dataset_cora)
+    else:
+        adbpyg.pyg_to_arangodb("cora", dataset_cora)        
+        
+    # loading IMDB dataset (Heterogeneous)
+    dataset_imdb = IMDB('./imdb')[0]
+    if db.has_graph('imdb'):
+        db.delete_graph('imdb', drop_collections=True, ignore_missing=True) 
+        adbpyg.pyg_to_arangodb("imdb", dataset_imdb)
+    else:
+        adbpyg.pyg_to_arangodb("imdb", dataset_imdb)

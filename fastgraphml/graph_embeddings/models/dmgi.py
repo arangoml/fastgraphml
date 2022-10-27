@@ -1,11 +1,13 @@
 import shutil
-
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from torch_geometric.typing import EdgeType, OptPairTensor, Adj
 import torch
+from torch import Tensor
 import torch.nn.functional as F
+from torch_geometric.data import Data
 from arango.database import Database
 from sklearn.linear_model import LogisticRegression
 from torch_geometric.nn import GCNConv
-
 from ..utils import GraphUtils
 
 # check for gpu
@@ -56,17 +58,17 @@ class DMGI(torch.nn.Module):
 
     def __init__(
         self,
-        database=None,
-        arango_graph=None,
-        metagraph=None,
-        metapaths=None,
-        key_node=None,
-        pyg_graph=None,
-        embedding_size=64,
-        dropout_perc=0.5,
-        transform=None,
-        num_val=0.1,
-        num_test=0.1,
+        database: Database = None,
+        arango_graph: Optional[str] = None,
+        metagraph: Union[Dict[str, str], None] = None,
+        metapaths: Optional[List[EdgeType]] = None,
+        key_node: Union[str, None] = None,
+        pyg_graph: Data = None,
+        embedding_size: int = 64,
+        dropout_perc: float = 0.5,
+        transform: Optional[List[Callable[..., Any]]] =None,
+        num_val: float = 0.1,
+        num_test: float = 0.1,
     ):
         super().__init__()
 
@@ -117,14 +119,14 @@ class DMGI(torch.nn.Module):
         self.Z = torch.nn.Parameter(torch.Tensor(num_nodes, out_channels))
         self.reset_parameters()
 
-    def reset_parameters(self):
+    def reset_parameters(self) -> None:
         for conv in self.convs:
             conv.reset_parameters()
         torch.nn.init.xavier_uniform_(self.M.weight)
         self.M.bias.data.zero_()
         torch.nn.init.xavier_uniform_(self.Z)
 
-    def forward(self, x, edge_indices):
+    def forward(self, x: Union[Tensor, OptPairTensor], edge_indices: Adj) -> Tuple[List[Tensor], List[Tensor], List[Tensor]]:
         pos_hs, neg_hs, summaries = [], [], []
         for conv, edge_index in zip(self.convs, edge_indices):
             pos_h = F.dropout(x, p=self.dropout_perc, training=self.training)
@@ -140,8 +142,8 @@ class DMGI(torch.nn.Module):
 
         return pos_hs, neg_hs, summaries
 
-    def loss(self, pos_hs, neg_hs, summaries):
-        loss = 0.0
+    def loss(self, pos_hs: List[Tensor], neg_hs: List[Tensor], summaries: List[Tensor]) -> Tensor:
+        loss = torch.tensor(0.0)
         for pos_h, neg_h, s in zip(pos_hs, neg_hs, summaries):
             s = s.expand_as(pos_h)
             loss += -torch.log(self.M(pos_h, s).sigmoid() + 1e-15).mean()
@@ -158,7 +160,9 @@ class DMGI(torch.nn.Module):
 
     # save checkpoints whenever there is an increase in validation accuracy
     @staticmethod
-    def save_checkpoints(state, is_best, ckp_path, best_model_path):
+    def save_checkpoints(
+        state: Dict[str, str], is_best: bool, ckp_path: str, best_model_path: str
+    ) -> None:
         file_path = ckp_path
         torch.save(state, file_path)
         # if it is a best model, min train loss
@@ -169,13 +173,13 @@ class DMGI(torch.nn.Module):
 
     def _train(
         self,
-        model,
-        ckp_path="./latest_model_checkpoint.pt",
-        best_model_path="./best_model.pt",
-        epochs=51,
-        lr=0.0005,
-        **kwargs,
-    ):
+        model: Any,
+        ckp_path: str = "./latest_model_checkpoint.pt",
+        best_model_path: str = "./best_model.pt",
+        epochs: int = 51,
+        lr: float = 0.0005,
+        **kwargs: Any,
+    ) -> None:
         """Train GraphML model.
 
         :model: Graph embedding model.
@@ -238,7 +242,7 @@ class DMGI(torch.nn.Module):
                 best_acc = val_acc
 
     @torch.no_grad()
-    def val(self, model):
+    def val(self, model: Any) -> Tuple[float, float]:
         """Tests the performance of a generated graph embeddings using Node
         Classification as a downstream task.
 
@@ -262,7 +266,7 @@ class DMGI(torch.nn.Module):
         return val_acc, test_acc
 
     @torch.no_grad()
-    def get_embeddings(self, model):
+    def get_embeddings(self, model: Any) -> Dict[Optional[str], Any]:
         """Returns Graph Embeddings for the key node only.
 
            Embeddings size: (n, embedding_size), where

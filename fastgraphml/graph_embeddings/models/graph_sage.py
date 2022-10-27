@@ -1,18 +1,17 @@
-import shutil
 
-from typing import Dict, Tuple, Callable, List, Any
-from torch_geometric.data import Data
-from torch import Tensor
+import shutil
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from arango.database import Database
 from sklearn.linear_model import LogisticRegression
+from torch import Tensor
 from torch_cluster import random_walk
+from torch_geometric.data import Data
 from torch_geometric.loader import NeighborSampler as RawNeighborSampler
 from torch_geometric.nn import SAGEConv
-
-from ..utils import GraphUtils
+from ..utils import GraphUtils 
 
 # check for gpu
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -26,7 +25,7 @@ class NeighborSampler(RawNeighborSampler):
     returns sampled neighborhood
     """
 
-    def sample(self, batch: int):
+    def sample(self, batch: Tensor) -> Union[Tensor, Any]:
         batch = torch.tensor(batch)
         row, col, _ = self.adj_t.coo()
 
@@ -80,9 +79,23 @@ class SAGE(nn.Module):
      <https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html#torch_geometric.nn.conv.SAGEConv> # noqa: E501
     """
 
-    def __init__(self, database: Database = None, arango_graph: str = None, metagraph: Dict = None, 
-        pyg_graph: Data = None, embedding_size: int = 64, num_layers: int = 2, sizes: Tuple[int, int] = [10, 10], batch_size: int = 256, 
-        dropout_perc: float = 0.5, shuffle: bool = True, transform: List[Callable] = None, num_val: float = 0.1, num_test: float = 0.1, **kwargs):
+    def __init__(
+        self,
+        database: Database = None,
+        arango_graph: Optional[str] = None,
+        metagraph: Union[Dict[str, str], None] = None,
+        pyg_graph: Data = None,
+        embedding_size: int = 64,
+        num_layers: int = 2,
+        sizes: List[int] = [10, 10],
+        batch_size: int = 256,
+        dropout_perc: float = 0.5,
+        shuffle: bool = True,
+        transform: Optional[List[Callable[..., Any]]] = None,
+        num_val: float = 0.1,
+        num_test: float = 0.1,
+        **kwargs: Any,
+    ):
         super().__init__()
 
         if (
@@ -148,7 +161,9 @@ class SAGE(nn.Module):
 
     # save checkpoints whenever there is an increase in validation accuracy
     @staticmethod
-    def save_checkpoints(state: Dict, is_best: bool, ckp_path: str, best_model_path: str):
+    def save_checkpoints(
+        state: Dict[str, str], is_best: bool, ckp_path: str, best_model_path: str
+    ) -> None:
         file_path = ckp_path
         torch.save(state, file_path)
         # if it is a best model, min train loss
@@ -157,7 +172,15 @@ class SAGE(nn.Module):
             # copy best checkpoint file to best model path
             shutil.copyfile(file_path, best_file_path)
 
-    def _train(self, model: Any, ckp_path: str = "./latest_model_checkpoint.pt", best_model_path: str = "./best_model.pt", epochs: int = 51, lr: float = 0.001, **kwargs):
+    def _train(
+        self,
+        model: Any,
+        ckp_path: str = "./latest_model_checkpoint.pt",
+        best_model_path: str = "./best_model.pt",
+        epochs: int = 51,
+        lr: float = 0.001,
+        **kwargs: Any,
+    ) -> None: 
         """Train GraphML model.
 
         :model: Graph embedding model.
@@ -234,11 +257,11 @@ class SAGE(nn.Module):
     @torch.no_grad()
     def val(self, model: Any) -> Tuple[float, float]:
         """Tests the performance of a generated graph embeddings using Node Classification as a downstream task.
-        
+
         returns validation and test accuracy.
 
         model: Graph embedding model.
-        """
+        """  # noqa: E501
         model.eval()
         out = model.full_forward(self.x, self.edge_index).cpu()
         clf = LogisticRegression(max_iter=400, class_weight="balanced")
@@ -249,7 +272,7 @@ class SAGE(nn.Module):
         return val_acc, test_acc
 
     @torch.no_grad()
-    def get_embeddings(self, model: Any) -> Tensor:
+    def get_embeddings(self, model: Any) -> Union[Tensor, Any]:
         """Returns Graph Embeddings of size (n, embedding_size),
            n: number of nodes in graph.
            embedding_size: Length of the node embeddings when they are mapped to

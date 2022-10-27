@@ -1,9 +1,15 @@
 # utils file
 import torch.nn as nn
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from torch import Tensor
+from arango.database import Database
+from torch_geometric.typing import EdgeType
+from torch_geometric.data import Data
 import torch_geometric.transforms as T
 from adbpyg_adapter import ADBPyG_Adapter
+import numpy as np
+import numpy.typing as npt
 from rich.progress import track
-
 from .downstream_tasks.similarity_search import similarity_search
 
 
@@ -13,15 +19,15 @@ class GraphUtils(nn.Module):
 
     def __init__(
         self,
-        arango_graph,
-        metagraph,
-        database,
-        pyg_graph,
-        num_val,
-        num_test,
-        transform,
-        key_node=None,
-        metapaths=None,
+        arango_graph: Optional[str],
+        metagraph: Union[Dict[str, str], None],
+        database: Database,
+        pyg_graph: Data,
+        num_val: float,
+        num_test: float,
+        transform: Any,
+        key_node: Union[str, None] = None,
+        metapaths: Optional[List[EdgeType]] = None,
     ):
         super().__init__()
         self.num_val = num_val
@@ -39,7 +45,7 @@ class GraphUtils(nn.Module):
             self.graph = self.pyg_preprocess(pyg_graph)
             print(self.graph_stats())
 
-    def pyg_preprocess(self, pyg_data):
+    def pyg_preprocess(self, pyg_data: Data) -> Data:
         """Takes PyG data object and preprocess it.
         By default it performs following preporocessing:
         1. AddMetaPaths
@@ -92,7 +98,7 @@ class GraphUtils(nn.Module):
 
         return pyg_data
 
-    def arango_to_pyg(self, arango_graph, metagraph):
+    def arango_to_pyg(self, arango_graph: Optional[str], metagraph: Union[Dict[str, str], None]) -> Data:
         """Exports ArangoDB graph to PyG data object using ArangoDB PyG Adapter.
 
         :arango_graph (type: str): The name of ArangoDB graph which we want to
@@ -116,7 +122,7 @@ class GraphUtils(nn.Module):
     # e.g. num of nodes, edges, etc.
     def graph_stats(
         self,
-    ):
+    ) -> Dict[str, Union[str, int, float]]:
         if self.key_node is None:
             print("Homogeneous Graph Detected ........ \n")
             g_info = {}
@@ -195,16 +201,16 @@ class GraphUtils(nn.Module):
     # store graph embeddings inside arangodb
     def store_embeddings(
         self,
-        graph_emb,
-        collection_name=None,
-        batch_size=100,
-        class_mapping=None,
-        node_type=None,
-        nearest_nbors_search=False,
-        top_k_nbors=10,
-        nlist=10,
-        search_type="exact",
-    ):
+        graph_emb: npt.NDArray[np.float64],
+        collection_name: Optional[str] = None,
+        batch_size: int = 100,
+        class_mapping: Optional[Dict[int, str]] = None,
+        node_type: Optional[str] = None,
+        nearest_nbors_search: bool = False,
+        top_k_nbors: int = 10,
+        nlist: int = 10,
+        search_type: str = "exact",
+    ) -> None:
         """Store generated graph embeddings inside ArangoDB.
 
         :graph_emb (type: 2D numpy array): Numpy array of size (n, embedding_size),

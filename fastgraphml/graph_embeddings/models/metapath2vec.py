@@ -1,10 +1,12 @@
 import shutil
-
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from torch_geometric.typing import EdgeType
 import torch
+from torch import Tensor
 from arango.database import Database
 from sklearn.linear_model import LogisticRegression
 from torch_geometric.nn import MetaPath2Vec
-
+from torch_geometric.data import Data
 from ..utils import GraphUtils
 
 # check for gpu
@@ -63,24 +65,24 @@ class METAPATH2VEC:
 
     def __init__(
         self,
-        database=None,
-        arango_graph=None,
-        metagraph=None,
-        metapaths=None,
-        key_node=None,
-        pyg_graph=None,
-        embedding_size=64,
-        walk_length=5,
-        context_size=6,
-        walks_per_node=5,
-        num_negative_samples=5,
-        num_nodes_dict=None,
-        sparse=False,
-        batch_size=64,
-        transform=None,
-        num_val=0.1,
-        num_test=0.1,
-        shuffle=True,
+        database: Database = None,
+        arango_graph: Optional[str] = None,
+        metagraph: Union[Dict[str, str], None] = None,
+        metapaths: Optional[List[EdgeType]] = None,
+        key_node: Union[str, None] = None,
+        pyg_graph: Data = None,
+        embedding_size: int = 64,
+        walk_length: int = 5,
+        context_size: int = 6,
+        walks_per_node: int = 5,
+        num_negative_samples: int = 5,
+        num_nodes_dict: Optional[Dict[str, int]] = None,
+        sparse: bool = False,
+        batch_size: int = 64,
+        transform: Optional[List[Callable[..., Any]]] = None,
+        num_val: float = 0.1,
+        num_test: float = 0.1,
+        shuffle: bool = True,
     ):
 
         if (
@@ -126,7 +128,9 @@ class METAPATH2VEC:
 
     # save checkpoints whenever there is an increase in validation accuracy
     @staticmethod
-    def save_checkpoints(state, is_best, ckp_path, best_model_path):
+    def save_checkpoints(
+        state: Dict[str, str], is_best: bool, ckp_path: str, best_model_path: str
+    ) -> None:
         file_path = ckp_path
         torch.save(state, file_path)
         # if it is a best model, min train loss
@@ -137,14 +141,14 @@ class METAPATH2VEC:
 
     def _train(
         self,
-        ckp_path="./latest_model_checkpoint.pt",
-        best_model_path="./best_model.pt",
-        epochs=51,
-        lr=0.03,
-        log_steps=100,
-        eval_steps=2000,
-        **kwargs,
-    ):
+        ckp_path: str = "./latest_model_checkpoint.pt",
+        best_model_path: str = "./best_model.pt",
+        epochs: int = 51,
+        lr: float = 0.03,
+        log_steps: int = 100,
+        eval_steps: int = 2000,
+        **kwargs: Any,
+    ) -> None:
         """Train GraphML model.
 
         :ckp_path (type: str): Path to save model's latest checkpoints
@@ -254,7 +258,7 @@ class METAPATH2VEC:
                 best_acc = val_acc
 
     @torch.no_grad()
-    def val(self, model):
+    def val(self, model: Any) ->Tuple[float, float]:
         """Tests the performance of a generated graph embeddings using Node
         Classification as a downstream task. Performance is tested on a node type
         (associated with labels) mentioned using key_node argument.
@@ -290,7 +294,7 @@ class METAPATH2VEC:
     @torch.no_grad()
     def get_embeddings(
         self,
-    ):
+    ) -> Dict[str, Tensor]:
         """Returns Graph Embeddings as a dictionary {node_type1:emb1, node_type2:emb2,
 
         ....} where embeddings for each node type is present, if that node type is used

@@ -1,15 +1,16 @@
 import shutil
-
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from arango.database import Database
 from sklearn.linear_model import LogisticRegression
+from torch import Tensor
 from torch.nn import Linear as Lin
 from torch_cluster import random_walk
+from torch_geometric.data import Data
 from torch_geometric.loader import NeighborSampler as RawNeighborSampler
 from torch_geometric.nn import GATConv
-
 from ..utils import GraphUtils
 
 # check for gpu
@@ -24,7 +25,7 @@ class NeighborSampler(RawNeighborSampler):
     returns sampled neighborhood
     """
 
-    def sample(self, batch):
+    def sample(self, batch: Tensor) -> Union[Tensor, Any]:
         batch = torch.tensor(batch)
         row, col, _ = self.adj_t.coo()
 
@@ -84,21 +85,21 @@ class GAT(torch.nn.Module):
 
     def __init__(
         self,
-        database=None,
-        arango_graph=None,
-        metagraph=None,
-        pyg_graph=None,
-        embedding_size=64,
-        heads=2,
-        num_layers=2,
-        sizes=[10, 10],
-        batch_size=256,
-        dropout_perc=0.5,
-        shuffle=True,
-        transform=None,
-        num_val=0.1,
-        num_test=0.1,
-        **kwargs,
+        database: Database = None,
+        arango_graph: Optional[str] = None,
+        metagraph: Union[Dict[str, str], None] = None,
+        pyg_graph: Data = None,
+        embedding_size: int = 64,
+        heads: int = 2,
+        num_layers: int = 2,
+        sizes: List[int] = [10, 10],
+        batch_size: int = 256,
+        dropout_perc: float = 0.5,
+        shuffle: bool = True,
+        transform: Optional[List[Callable[..., Any]]] = None,
+        num_val: float = 0.1,
+        num_test: float = 0.1,
+        **kwargs: Any,
     ):
         super().__init__()
 
@@ -145,11 +146,11 @@ class GAT(torch.nn.Module):
         for i in range(num_layers):
             if i == 0:
                 self.convs.append(
-                    GATConv(self.in_channels, self.hidden_channels, heads)
+                    GATConv(self.in_channels, self.hidden_channels, heads, **kwargs)
                 )
             else:
                 self.convs.append(
-                    GATConv(heads * self.hidden_channels, self.hidden_channels, heads)
+                    GATConv(heads * self.hidden_channels, self.hidden_channels, heads, **kwargs)
                 )
 
         # adding skip connections
@@ -162,7 +163,7 @@ class GAT(torch.nn.Module):
                     Lin(self.hidden_channels * heads, self.hidden_channels * heads)
                 )
 
-    def forward(self, x, adjs):
+    def forward(self, x: Tensor, adjs: Tensor) -> Tensor:
         for i, (edge_index, _, size) in enumerate(adjs):
             x_target = x[: size[1]]  # Target nodes are always placed first.
             x = self.convs[i]((x, x_target), edge_index)
@@ -172,7 +173,7 @@ class GAT(torch.nn.Module):
                 x = F.dropout(x, p=self.dropout_perc, training=self.training)
         return x
 
-    def full_forward(self, x, edge_index):
+    def full_forward(self, x: Tensor, edge_index: Tensor) -> Tensor:
         for i, conv in enumerate(self.convs):
             x = conv(x, edge_index) + self.skips[i](x)
             if i != self.num_layers - 1:
@@ -182,7 +183,9 @@ class GAT(torch.nn.Module):
 
     # save checkpoints whenever there is an increase in validation accuracy
     @staticmethod
-    def save_checkpoints(state, is_best, ckp_path, best_model_path):
+    def save_checkpoints(
+        state: Dict[str, str], is_best: bool, ckp_path: str, best_model_path: str
+    ) -> None:
         file_path = ckp_path
         torch.save(state, file_path)
         # if it is a best model, min train loss
@@ -193,13 +196,13 @@ class GAT(torch.nn.Module):
 
     def _train(
         self,
-        model,
-        ckp_path="./latest_model_checkpoint.pt",
-        best_model_path="./best_model.pt",
-        epochs=51,
-        lr=0.001,
-        **kwargs,
-    ):
+        model: Any,
+        ckp_path : str = "./latest_model_checkpoint.pt",
+        best_model_path: str = "./best_model.pt",
+        epochs: int = 51,
+        lr: float = 0.001,
+        **kwargs: Any,
+    ) -> None:
         """Train GraphML model.
 
         :model: Graph embedding model.
@@ -274,7 +277,7 @@ class GAT(torch.nn.Module):
                 best_acc = val_acc
 
     @torch.no_grad()
-    def val(self, model):
+    def val(self, model: Any) -> Tuple[float, float]: 
         """Tests the performance of a generated graph embeddings using Node
         Classification as a downstream task.
 
@@ -292,7 +295,7 @@ class GAT(torch.nn.Module):
         return val_acc, test_acc
 
     @torch.no_grad()
-    def get_embeddings(self, model):
+    def get_embeddings(self, model: Any) -> Union[Tensor, Any]:
         """Returns Graph Embeddings of size (n, embedding_size),
            n: number of nodes in graph.
            embedding_size: Length of the node embeddings when they are mapped to

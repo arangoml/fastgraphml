@@ -1,14 +1,18 @@
+from typing import Any, Tuple, Optional, Dict, Callable
+from torch_geometric.data import Data
+import numpy as np
 import math
-
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt
+from torch import Tensor
 import seaborn as sns
 import umap
 
 
 def visualize_embeddings(
-    graph, graph_emb, class_mapping=None, node_type=None, emb_percent=0.1
-):
+    graph: Data, graph_emb: npt.NDArray[np.float64], class_mapping: Optional[Dict[int, str]] = None, node_type: Optional[str] = None, emb_percent: float = 0.1
+) -> None:
     """Performs dimensionality reduction (2D) and visualization of graph embeddings
     using U-Map.
 

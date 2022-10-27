@@ -258,7 +258,7 @@ class METAPATH2VEC:
                 best_acc = val_acc
 
     @torch.no_grad()
-    def val(self, model: Any) ->Tuple[float, float]:
+    def val(self, model: Any) -> Tuple[float, float]:
         """Tests the performance of a generated graph embeddings using Node
         Classification as a downstream task. Performance is tested on a node type
         (associated with labels) mentioned using key_node argument.

@@ -1,5 +1,6 @@
 import shutil
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -11,6 +12,7 @@ from torch_cluster import random_walk
 from torch_geometric.data import Data
 from torch_geometric.loader import NeighborSampler as RawNeighborSampler
 from torch_geometric.nn import GATConv
+
 from ..utils import GraphUtils
 
 # check for gpu
@@ -18,7 +20,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 # neighborhood sampling
-class NeighborSampler(RawNeighborSampler):
+class NeighborSampler(RawNeighborSampler):  # type: ignore
     """For each node in batch, it sample a direct neighbor (as positive example) and a
     random node (as negative example):
 
@@ -150,7 +152,12 @@ class GAT(torch.nn.Module):
                 )
             else:
                 self.convs.append(
-                    GATConv(heads * self.hidden_channels, self.hidden_channels, heads, **kwargs)
+                    GATConv(
+                        heads * self.hidden_channels,
+                        self.hidden_channels,
+                        heads,
+                        **kwargs,
+                    )
                 )
 
         # adding skip connections
@@ -197,7 +204,7 @@ class GAT(torch.nn.Module):
     def _train(
         self,
         model: Any,
-        ckp_path : str = "./latest_model_checkpoint.pt",
+        ckp_path: str = "./latest_model_checkpoint.pt",
         best_model_path: str = "./best_model.pt",
         epochs: int = 51,
         lr: float = 0.001,
@@ -277,7 +284,7 @@ class GAT(torch.nn.Module):
                 best_acc = val_acc
 
     @torch.no_grad()
-    def val(self, model: Any) -> Tuple[float, float]: 
+    def val(self, model: Any) -> Tuple[float, float]:
         """Tests the performance of a generated graph embeddings using Node
         Classification as a downstream task.
 

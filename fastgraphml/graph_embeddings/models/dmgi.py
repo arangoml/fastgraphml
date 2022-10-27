@@ -1,13 +1,15 @@
 import shutil
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
-from torch_geometric.typing import EdgeType, OptPairTensor, Adj
+
 import torch
-from torch import Tensor
 import torch.nn.functional as F
-from torch_geometric.data import Data
 from arango.database import Database
 from sklearn.linear_model import LogisticRegression
+from torch import Tensor
+from torch_geometric.data import Data
 from torch_geometric.nn import GCNConv
+from torch_geometric.typing import Adj, EdgeType, OptPairTensor
+
 from ..utils import GraphUtils
 
 # check for gpu
@@ -66,7 +68,7 @@ class DMGI(torch.nn.Module):
         pyg_graph: Data = None,
         embedding_size: int = 64,
         dropout_perc: float = 0.5,
-        transform: Optional[List[Callable[..., Any]]] =None,
+        transform: Optional[List[Callable[..., Any]]] = None,
         num_val: float = 0.1,
         num_test: float = 0.1,
     ):
@@ -126,7 +128,9 @@ class DMGI(torch.nn.Module):
         self.M.bias.data.zero_()
         torch.nn.init.xavier_uniform_(self.Z)
 
-    def forward(self, x: Union[Tensor, OptPairTensor], edge_indices: Adj) -> Tuple[List[Tensor], List[Tensor], List[Tensor]]:
+    def forward(
+        self, x: Union[Tensor, OptPairTensor], edge_indices: Adj
+    ) -> Tuple[List[Tensor], List[Tensor], List[Tensor]]:
         pos_hs, neg_hs, summaries = [], [], []
         for conv, edge_index in zip(self.convs, edge_indices):
             pos_h = F.dropout(x, p=self.dropout_perc, training=self.training)
@@ -142,7 +146,9 @@ class DMGI(torch.nn.Module):
 
         return pos_hs, neg_hs, summaries
 
-    def loss(self, pos_hs: List[Tensor], neg_hs: List[Tensor], summaries: List[Tensor]) -> Tensor:
+    def loss(
+        self, pos_hs: List[Tensor], neg_hs: List[Tensor], summaries: List[Tensor]
+    ) -> Tensor:
         loss = torch.tensor(0.0)
         for pos_h, neg_h, s in zip(pos_hs, neg_hs, summaries):
             s = s.expand_as(pos_h)

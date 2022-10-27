@@ -1,12 +1,14 @@
 import shutil
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
-from torch_geometric.typing import EdgeType
+
 import torch
-from torch import Tensor
 from arango.database import Database
 from sklearn.linear_model import LogisticRegression
-from torch_geometric.nn import MetaPath2Vec
+from torch import Tensor
 from torch_geometric.data import Data
+from torch_geometric.nn import MetaPath2Vec
+from torch_geometric.typing import EdgeType
+
 from ..utils import GraphUtils
 
 # check for gpu
@@ -188,7 +190,9 @@ class METAPATH2VEC:
                 list(model.parameters()), lr=lr, **kwargs
             )
         else:
-            optimizer = torch.optim.Adam(model.parameters(), lr=lr, **kwargs)
+            optimizer = torch.optim.Adam(
+                model.parameters(), lr=lr, **kwargs
+            )  # type: ignore
         best_acc = 0.0
         print("Training started .........")
 
@@ -274,7 +278,7 @@ class METAPATH2VEC:
         train_node_idx = self.G[self.key_node].train_mask
         val_node_idx = self.G[self.key_node].val_mask
         test_node_idx = self.G[self.key_node].test_mask
-        clf = LogisticRegression(max_iter=400, class_weight="balanced")
+        clf = LogisticRegression(max_iter = 400, class_weight = "balanced")
         clf.fit(
             z[train_node_idx].detach().cpu().numpy(),
             y[train_node_idx].detach().cpu().numpy(),
@@ -308,8 +312,8 @@ class METAPATH2VEC:
 
         emb = {}
         metapath_nodes = []
-        for idx in range(len(self.metapath)):
-            src_node, _, dest_node = self.metapath[idx]
+        for idx in range(len(self.metapath)):  # type: ignore
+            src_node, _, dest_node = self.metapath[idx]  # type: ignore
             metapath_nodes.append(src_node)
             metapath_nodes.append(dest_node)
 

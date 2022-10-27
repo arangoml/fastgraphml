@@ -1,15 +1,15 @@
 # utils file
-import torch.nn as nn
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
-from torch import Tensor
-from arango.database import Database
-from torch_geometric.typing import EdgeType
-from torch_geometric.data import Data
-import torch_geometric.transforms as T
-from adbpyg_adapter import ADBPyG_Adapter
+from typing import Any, Dict, List, Optional, Union
 import numpy as np
 import numpy.typing as npt
+import torch.nn as nn
+import torch_geometric.transforms as T
+from adbpyg_adapter import ADBPyG_Adapter
+from arango.database import Database
 from rich.progress import track
+from torch_geometric.data import Data
+from torch_geometric.typing import EdgeType
+
 from .downstream_tasks.similarity_search import similarity_search
 
 
@@ -98,7 +98,9 @@ class GraphUtils(nn.Module):
 
         return pyg_data
 
-    def arango_to_pyg(self, arango_graph: Optional[str], metagraph: Union[Dict[str, str], None]) -> Data:
+    def arango_to_pyg(
+        self, arango_graph: Optional[str], metagraph: Union[Dict[str, str], None]
+    ) -> Data:
         """Exports ArangoDB graph to PyG data object using ArangoDB PyG Adapter.
 
         :arango_graph (type: str): The name of ArangoDB graph which we want to

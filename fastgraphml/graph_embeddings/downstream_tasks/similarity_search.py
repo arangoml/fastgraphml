@@ -1,10 +1,15 @@
-from typing import Any, Tuple
+from typing import Tuple
 import faiss
 import numpy as np
 import numpy.typing as npt
-from torch import Tensor
 
-def similarity_search(graph_emb: npt.NDArray[np.float64], top_k_nbors: int = 10, nlist: int = 10, search_type: str ="exact") -> Tuple[float, float]:
+
+def similarity_search(
+    graph_emb: npt.NDArray[np.float64],
+    top_k_nbors: int = 10,
+    nlist: int = 10,
+    search_type: str = "exact",
+) -> Tuple[npt.NDArray[np.float64], npt.NDArray[np.int64]]:
     """Performs similarity search in sets of vectors of any size, up to ones that
     possibly do not fit in RAM using FAISS.
 

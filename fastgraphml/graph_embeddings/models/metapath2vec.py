@@ -278,7 +278,7 @@ class METAPATH2VEC:
         train_node_idx = self.G[self.key_node].train_mask
         val_node_idx = self.G[self.key_node].val_mask
         test_node_idx = self.G[self.key_node].test_mask
-        clf = LogisticRegression(max_iter = 400, class_weight = "balanced")
+        clf = LogisticRegression(max_iter=400, class_weight="balanced")
         clf.fit(
             z[train_node_idx].detach().cpu().numpy(),
             y[train_node_idx].detach().cpu().numpy(),

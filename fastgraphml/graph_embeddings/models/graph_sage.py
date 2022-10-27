@@ -1,6 +1,6 @@
-
 import shutil
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -11,14 +11,15 @@ from torch_cluster import random_walk
 from torch_geometric.data import Data
 from torch_geometric.loader import NeighborSampler as RawNeighborSampler
 from torch_geometric.nn import SAGEConv
-from ..utils import GraphUtils 
+
+from ..utils import GraphUtils
 
 # check for gpu
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 # neighborhood sampling
-class NeighborSampler(RawNeighborSampler):
+class NeighborSampler(RawNeighborSampler):  # type: ignore
     """For each node in batch, it sample a direct neighbor (as positive example) and a
     random node (as negative example):
 
@@ -180,7 +181,7 @@ class SAGE(nn.Module):
         epochs: int = 51,
         lr: float = 0.001,
         **kwargs: Any,
-    ) -> None: 
+    ) -> None:
         """Train GraphML model.
 
         :model: Graph embedding model.

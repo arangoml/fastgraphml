@@ -47,13 +47,9 @@ def test_sage():
 # test sage model on PyG dataset directly
 def test_sage_pyg():
     dataset_cora = Planetoid("./", "Cora")[0]
-    # generating graph embeddings with 3 lines of code
-    model = SAGE(
-        pyg_graph=dataset_cora, embedding_size=64
-    )  # define graph embedding model
-    model._train(model, epochs=2)  # train
-    embeddings = model.get_embeddings(model=model)  # get embeddings
-    # check embeddings size
+    model = SAGE(pyg_graph=dataset_cora, embedding_size=64)  
+    model._train(model, epochs=2)  
+    embeddings = model.get_embeddings(model=model) 
     assert embeddings.size == int(173312)
 
 

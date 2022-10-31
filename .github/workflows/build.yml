@@ -13,10 +13,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: ["fastgraphml"]
+        python: ["3.8", "3.9", "3.10"]
     name: Lint - Python ${{ matrix.python }}
-    steps:
       - uses: actions/checkout@v2
+    steps:
+      - name: Activating conda env
+        run: |
+          source ~/miniconda3/etc/profile.d/conda.sh 
+          conda activate fastgraphml
       - name: Setup Python ${{ matrix.python }}
         uses: actions/setup-python@v2
         with:

@@ -15,8 +15,8 @@ jobs:
       matrix:
         python: ["3.8", "3.9", "3.10"]
     name: Lint - Python ${{ matrix.python }}
-      - uses: actions/checkout@v2
     steps:
+      - uses: actions/checkout@v2
       - name: Activating conda env
         run: |
           source ~/miniconda3/etc/profile.d/conda.sh 

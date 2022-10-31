@@ -16,7 +16,7 @@ jobs:
         shell: bash -l {0}
     strategy:
       matrix:
-        python: ["3.8", "3.9", "3.10"]
+        python: ["3.8"]
     name: Lint - Python ${{ matrix.python }}
     steps:
       - uses: actions/checkout@v2
@@ -47,7 +47,7 @@ jobs:
         shell: bash -l {0}
     strategy:
       matrix:
-        python: ["3.8", "3.9", "3.10"]
+        python: ["3.8"]
     name: Test - Python ${{ matrix.python }}
     steps:
       - uses: actions/checkout@v2

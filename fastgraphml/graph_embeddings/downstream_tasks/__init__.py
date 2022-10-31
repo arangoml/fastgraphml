@@ -1,6 +1,6 @@
-from fastgraphml.graph_embeddings.downstream_tasks.similarity_search import (
+from fastgraphml.graph_embeddings.downstream_tasks.similarity_search import (  # noqa: E501
     similarity_search,
-)  # noqa: F401
-from fastgraphml.graph_embeddings.downstream_tasks.visualization import (
+)
+from fastgraphml.graph_embeddings.downstream_tasks.visualization import (  # noqa: E501
     visualize_embeddings,
-)  # noqa: F401
+)

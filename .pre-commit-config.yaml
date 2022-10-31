@@ -19,9 +19,6 @@ repos:
     -   id: mypy
         additional_dependencies: [types-requests]
         exclude: ^tests/
-        args:
-            - "--disallow_untyped_decorators=False" 
-
 -   repo: https://github.com/PyCQA/flake8
     rev: 5.0.4
     hooks:

@@ -1,8 +1,4 @@
 name: build
-runs-on: self-hosted
-    defaults:
-      run:
-        shell: bash -l {0}
 on:
   workflow_dispatch:
   push:

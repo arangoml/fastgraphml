@@ -19,7 +19,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 # neighborhood sampling
-class NeighborSampler(RawNeighborSampler):  # type: ignore
+class NeighborSampler(RawNeighborSampler):
     """For each node in batch, it sample a direct neighbor (as positive example) and a
     random node (as negative example):
 

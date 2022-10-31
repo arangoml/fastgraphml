@@ -7,6 +7,7 @@ import torch.nn as nn
 import torch_geometric.transforms as T
 from adbpyg_adapter import ADBPyG_Adapter
 from arango.database import Database
+from arango.exceptions import CollectionCreateError
 from rich.progress import track
 from torch_geometric.data import Data
 from torch_geometric.typing import EdgeType
@@ -205,7 +206,7 @@ class GraphUtils(nn.Module):
     def store_embeddings(
         self,
         graph_emb: Union[npt.NDArray[np.float64], Any],
-        collection_name: Optional[str] = None,
+        collection_name: str,
         batch_size: int = 100,
         class_mapping: Optional[Dict[int, str]] = None,
         node_type: Optional[str] = None,
@@ -244,13 +245,15 @@ class GraphUtils(nn.Module):
             precision loss.
         """
 
-        assert (
-            collection_name is not None
-        ), "pass arangodb collection name to store embeddings "
+        if collection_name is None:
+            raise Exception("Pass arangodb collection name to store embeddings.")
 
         # create document collection with name "collection_name" in arangodb
         if not self.database.has_collection(collection_name):
-            self.database.create_collection(collection_name, replication_factor=3)
+            try:
+                self.database.create_collection(collection_name, replication_factor=3)
+            except CollectionCreateError as exec:
+                print(exec.message)
 
         batch = []
         batch_idx = 1

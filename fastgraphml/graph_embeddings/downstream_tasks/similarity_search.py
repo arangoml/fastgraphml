@@ -4,6 +4,8 @@ import faiss
 import numpy as np
 import numpy.typing as npt
 
+from fastgraphml.exceptions import SearchTypeException
+
 
 def similarity_search(
     graph_emb: Union[npt.NDArray[np.float64], Any],
@@ -61,8 +63,6 @@ def similarity_search(
         dist, nbors = search_index.search(graph_emb, k=top_k_nbors + 1)
 
     else:
-        assert (
-            search_type == "exact" or search_type == "approx"
-        ), "pass search type either exact or approx"
+        raise SearchTypeException
 
     return dist, nbors

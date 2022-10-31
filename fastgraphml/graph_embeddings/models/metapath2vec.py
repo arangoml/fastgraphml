@@ -70,7 +70,7 @@ class METAPATH2VEC:
         database: Database = None,
         arango_graph: Optional[str] = None,
         metagraph: Union[Dict[str, object], None] = None,
-        metapaths: Optional[List[EdgeType]] = None,
+        metapaths: List[EdgeType] = [0],
         key_node: Union[str, None] = None,
         pyg_graph: Data = None,
         embedding_size: int = 64,
@@ -190,9 +190,7 @@ class METAPATH2VEC:
                 list(model.parameters()), lr=lr, **kwargs
             )
         else:
-            optimizer = torch.optim.Adam(  # type: ignore
-                model.parameters(), lr=lr, **kwargs
-            )
+            optimizer = torch.optim.Adam(model.parameters(), lr=lr, **kwargs)
         best_acc = 0.0
         print("Training started .........")
 
@@ -312,8 +310,8 @@ class METAPATH2VEC:
 
         emb = {}
         metapath_nodes = []
-        for idx in range(len(self.metapath)):  # type: ignore
-            src_node, _, dest_node = self.metapath[idx]  # type: ignore
+        for idx in range(len(self.metapath)):
+            src_node, _, dest_node = self.metapath[idx]
             metapath_nodes.append(src_node)
             metapath_nodes.append(dest_node)
 

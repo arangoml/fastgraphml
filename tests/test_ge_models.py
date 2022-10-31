@@ -1,7 +1,9 @@
+from torch_geometric.datasets import Planetoid
+
+from fastgraphml.graph_embeddings import DMGI, GAT, METAPATH2VEC, SAGE, downstream_tasks
+
 from .conftest import db
-from fastgraphml.graph_embeddings import SAGE, GAT, METAPATH2VEC, DMGI
-from fastgraphml.graph_embeddings import downstream_tasks
-from torch_geometric.datasets import Planetoid, IMDB
+
 
 # test sage model
 def test_sage():
@@ -47,9 +49,9 @@ def test_sage():
 # test sage model on PyG dataset directly
 def test_sage_pyg():
     dataset_cora = Planetoid("./", "Cora")[0]
-    model = SAGE(pyg_graph=dataset_cora, embedding_size=64)  
-    model._train(model, epochs=2)  
-    embeddings = model.get_embeddings(model=model) 
+    model = SAGE(pyg_graph=dataset_cora, embedding_size=64)
+    model._train(model, epochs=2)
+    embeddings = model.get_embeddings(model=model)
     assert embeddings.size == int(173312)
 
 

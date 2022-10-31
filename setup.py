@@ -1,6 +1,6 @@
 from setuptools import setup
 
-with open("./README.md") as fp:
+with open("./README.md", encoding="utf-8") as fp:
     long_description = fp.read()
 
 
@@ -42,14 +42,15 @@ setup(
     python_requires=">=3.8",
     license="MIT License",
     install_requires=[
-        "numpy",
+        "requests",
         "sklearn",
-        "tqdm",
-        "umap-learn",
-        "matplotlib",
-        "matplotlib-inline",
-        "seaborn",
-        "adbpyg-adapter",
+        "matplotlib==3.5.2",
+        "seaborn>=0.11.2",
+        "matplotlib-inline>=0.1.2",
+        "numpy==1.22.4",
+        "tqdm==4.64.0",
+        "umap-learn==0.5.3",
+        "adbpyg-adapter==1.1.0",
         "python-arango>=7.4.1",
         "setuptools>=45",
     ],

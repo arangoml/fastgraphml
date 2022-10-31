@@ -1,5 +1,6 @@
 import math
-from typing import Dict, Optional
+from typing import Any, Dict, Optional, Union
+
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
@@ -10,7 +11,7 @@ from torch_geometric.data import Data
 
 def visualize_embeddings(
     graph: Data,
-    graph_emb: npt.NDArray[np.float64],
+    graph_emb: Union[npt.NDArray[np.float64], Any],
     class_mapping: Optional[Dict[int, str]] = None,
     node_type: Optional[str] = None,
     emb_percent: float = 0.1,

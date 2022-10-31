@@ -62,7 +62,7 @@ class DMGI(torch.nn.Module):
         self,
         database: Database = None,
         arango_graph: Optional[str] = None,
-        metagraph: Union[Dict[str, str], None] = None,
+        metagraph: Union[Dict[str, object], None] = None,
         metapaths: Optional[List[EdgeType]] = None,
         key_node: Union[str, None] = None,
         pyg_graph: Data = None,

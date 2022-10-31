@@ -2,11 +2,10 @@ from torch_geometric.datasets import Planetoid
 
 from fastgraphml.graph_embeddings import DMGI, GAT, METAPATH2VEC, SAGE, downstream_tasks
 
-from .conftest import db
+from .conftest import db  # type: ignore
 
 
-# test sage model
-def test_sage():
+def test_sage() -> None:
     metagraph = {
         "vertexCollections": {
             "cora_N": {"x": "x", "y": "y"},
@@ -47,7 +46,7 @@ def test_sage():
 
 
 # test sage model on PyG dataset directly
-def test_sage_pyg():
+def test_sage_pyg() -> None:
     dataset_cora = Planetoid("./", "Cora")[0]
     model = SAGE(pyg_graph=dataset_cora, embedding_size=64)
     model._train(model, epochs=2)
@@ -56,7 +55,7 @@ def test_sage_pyg():
 
 
 # test gat model
-def test_gat():
+def test_gat() -> None:
     metagraph = {
         "vertexCollections": {
             "cora_N": {"x": "x", "y": "y"},
@@ -72,7 +71,7 @@ def test_gat():
     assert embeddings.size == int(173312)
 
 
-def test_m2v():
+def test_m2v() -> None:
     metagraph = {
         "vertexCollections": {
             "movie": {"x": "x", "y": "y"},
@@ -101,13 +100,13 @@ def test_m2v():
         num_negative_samples=5,
         sparse=True,
     )
-    model._train(epochs=2, lr=0.03)  # train
+    model._train(epochs=2, lr=0.03)
     embeddings = model.get_embeddings()
     # check embeddings size
-    assert embeddings["movie"].size == int(17112)
+    assert embeddings["movie"].size == int(17112)  # type: ignore
 
 
-def test_dmgi():
+def test_dmgi() -> None:
     metagraph = {
         "vertexCollections": {
             "movie": {"x": "x", "y": "y"},

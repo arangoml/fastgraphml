@@ -1,11 +1,12 @@
-from typing import Tuple
+from typing import Any, Tuple, Union
+
 import faiss
 import numpy as np
 import numpy.typing as npt
 
 
 def similarity_search(
-    graph_emb: npt.NDArray[np.float64],
+    graph_emb: Union[npt.NDArray[np.float64], Any],
     top_k_nbors: int = 10,
     nlist: int = 10,
     search_type: str = "exact",

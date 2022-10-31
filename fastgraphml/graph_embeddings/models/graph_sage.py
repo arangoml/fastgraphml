@@ -84,7 +84,7 @@ class SAGE(nn.Module):
         self,
         database: Database = None,
         arango_graph: Optional[str] = None,
-        metagraph: Union[Dict[str, str], None] = None,
+        metagraph: Union[Dict[str, object], None] = None,
         pyg_graph: Data = None,
         embedding_size: int = 64,
         num_layers: int = 2,

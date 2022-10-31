@@ -1,5 +1,6 @@
 # utils file
 from typing import Any, Dict, List, Optional, Union
+
 import numpy as np
 import numpy.typing as npt
 import torch.nn as nn
@@ -20,7 +21,7 @@ class GraphUtils(nn.Module):
     def __init__(
         self,
         arango_graph: Optional[str],
-        metagraph: Union[Dict[str, str], None],
+        metagraph: Union[Dict[str, object], None],
         database: Database,
         pyg_graph: Data,
         num_val: float,
@@ -99,7 +100,7 @@ class GraphUtils(nn.Module):
         return pyg_data
 
     def arango_to_pyg(
-        self, arango_graph: Optional[str], metagraph: Union[Dict[str, str], None]
+        self, arango_graph: Optional[str], metagraph: Union[Dict[str, object], None]
     ) -> Data:
         """Exports ArangoDB graph to PyG data object using ArangoDB PyG Adapter.
 
@@ -203,7 +204,7 @@ class GraphUtils(nn.Module):
     # store graph embeddings inside arangodb
     def store_embeddings(
         self,
-        graph_emb: npt.NDArray[np.float64],
+        graph_emb: Union[npt.NDArray[np.float64], Any],
         collection_name: Optional[str] = None,
         batch_size: int = 100,
         class_mapping: Optional[Dict[int, str]] = None,

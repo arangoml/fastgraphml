@@ -69,7 +69,7 @@ class METAPATH2VEC:
         self,
         database: Database = None,
         arango_graph: Optional[str] = None,
-        metagraph: Union[Dict[str, str], None] = None,
+        metagraph: Union[Dict[str, object], None] = None,
         metapaths: Optional[List[EdgeType]] = None,
         key_node: Union[str, None] = None,
         pyg_graph: Data = None,
@@ -190,9 +190,9 @@ class METAPATH2VEC:
                 list(model.parameters()), lr=lr, **kwargs
             )
         else:
-            optimizer = torch.optim.Adam(
+            optimizer = torch.optim.Adam(  # type: ignore
                 model.parameters(), lr=lr, **kwargs
-            )  # type: ignore
+            )
         best_acc = 0.0
         print("Training started .........")
 

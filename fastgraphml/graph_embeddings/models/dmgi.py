@@ -64,7 +64,7 @@ class DMGI(torch.nn.Module):
         arango_graph: Optional[str] = None,
         metagraph: Union[Dict[str, object], None] = None,
         metapaths: Optional[List[EdgeType]] = None,
-        key_node: Union[str, None] = None,
+        key_node: Optional[str] = None,
         pyg_graph: Data = None,
         embedding_size: int = 64,
         dropout_perc: float = 0.5,

@@ -1,10 +1,10 @@
 from typing import Any
 
+import pytest
 from adbpyg_adapter import ADBPyG_Adapter
 from arango import ArangoClient
 from arango.http import DefaultHTTPClient
 from torch_geometric.datasets import IMDB, Planetoid
-import pytest
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:

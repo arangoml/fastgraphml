@@ -253,7 +253,7 @@ class GraphUtils(nn.Module):
             try:
                 self.database.create_collection(collection_name, replication_factor=3)
             except CollectionCreateError as exec:
-                print(exec.message)
+                raise CollectionCreateError(exec)
 
         batch = []
         batch_idx = 1

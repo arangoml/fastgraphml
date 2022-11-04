@@ -52,7 +52,7 @@ setup(
         "umap-learn==0.5.3",
         "adbpyg-adapter==1.1.0",
         "python-arango==7.4.1",
-        "setuptools==45"
+        "setuptools==45",
     ],
     extras_require={
         "dev": dev_requirements,

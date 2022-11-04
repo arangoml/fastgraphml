@@ -149,7 +149,7 @@ class DMGI(torch.nn.Module):
     def loss(
         self, pos_hs: List[Tensor], neg_hs: List[Tensor], summaries: List[Tensor]
     ) -> Tensor:
-        loss = torch.tensor(0.0)
+        loss = 0.0
         for pos_h, neg_h, s in zip(pos_hs, neg_hs, summaries):
             s = s.expand_as(pos_h)
             loss += -torch.log(self.M(pos_h, s).sigmoid() + 1e-15).mean()

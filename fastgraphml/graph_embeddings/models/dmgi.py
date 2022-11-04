@@ -246,7 +246,9 @@ class DMGI(torch.nn.Module):
                 best_acc = val_acc
 
     @torch.no_grad()
-    def val(self,) -> Tuple[float, float]:
+    def val(
+        self,
+    ) -> Tuple[float, float]:
         """Tests the performance of a generated graph embeddings using Node
         Classification as a downstream task.
 
@@ -270,13 +272,15 @@ class DMGI(torch.nn.Module):
         return val_acc, test_acc
 
     @torch.no_grad()
-    def get_embeddings(self,) -> Dict[Optional[str], Any]:
+    def get_embeddings(
+        self,
+    ) -> Dict[Optional[str], Any]:
         """Returns Graph Embeddings for the key node only.
 
-           Embeddings size: (n, embedding_size), where
-           n: number of nodes present for key node inside graph.
-           embedding_size: Length of the node embeddings when they are mapped to
-               d-dimensional euclidean space.
+        Embeddings size: (n, embedding_size), where
+        n: number of nodes present for key node inside graph.
+        embedding_size: Length of the node embeddings when they are mapped to
+            d-dimensional euclidean space.
 
         """
         emb = {}

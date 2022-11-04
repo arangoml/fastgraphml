@@ -103,7 +103,7 @@ def test_m2v() -> None:
     model._train(epochs=2, lr=0.03)
     embeddings = model.get_embeddings()
     # check embeddings size
-    assert embeddings["movie"].size == int(17112)  # type: ignore
+    assert embeddings["movie"].size == int(17112)
 
 
 def test_dmgi() -> None:

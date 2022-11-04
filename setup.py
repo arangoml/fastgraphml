@@ -42,8 +42,8 @@ setup(
     python_requires=">=3.8",
     license="MIT License",
     install_requires=[
-        "requests",
-        "sklearn",
+        "requests=2.28.1",
+        "sklearn=0.0",
         "matplotlib==3.5.2",
         "seaborn>=0.11.2",
         "matplotlib-inline>=0.1.2",

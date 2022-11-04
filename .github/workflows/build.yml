@@ -29,7 +29,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - name: Install packages
-        run: pip install .[dev]
+        run: conda run -n fastgraphml pip install .[dev]
       - name: Run black
         run: black --check --verbose --diff --color ${{env.PACKAGE_DIR}} ${{env.TESTS_DIR}}
       - name: Run flake8

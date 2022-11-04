@@ -282,7 +282,9 @@ class GAT(torch.nn.Module):
                 best_acc = val_acc
 
     @torch.no_grad()
-    def val(self,) -> Tuple[float, float]:
+    def val(
+        self,
+    ) -> Tuple[float, float]:
         """Tests the performance of a generated graph embeddings using Node
         Classification as a downstream task.
 
@@ -300,11 +302,13 @@ class GAT(torch.nn.Module):
         return val_acc, test_acc
 
     @torch.no_grad()
-    def get_embeddings(self,) -> Union[Tensor, Any]:
+    def get_embeddings(
+        self,
+    ) -> Union[Tensor, Any]:
         """Returns Graph Embeddings of size (n, embedding_size),
-           n: number of nodes in graph.
-           embedding_size: Length of the node embeddings when they are mapped to
-               d-dimensional euclidean space.
+        n: number of nodes in graph.
+        embedding_size: Length of the node embeddings when they are mapped to
+            d-dimensional euclidean space.
 
         """
         self.eval()

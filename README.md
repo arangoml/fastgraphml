@@ -49,8 +49,8 @@ metagraph = {
 
 # generating graph embeddings with 3 lines of code
 model = SAGE(db, arango_graph, metagraph, embedding_size=64) # define graph embedding model
-model._train(model, epochs=10) # train
-embeddings = model.get_embeddings(model=model) # get embeddings
+model._train(epochs=10) # train
+embeddings = model.get_embeddings() # get embeddings
 ```
 
 #### Example Heterogeneous Graphs
@@ -100,8 +100,8 @@ data = dataset[0]
 
 # generating graph embeddings with 3 lines of code
 model = SAGE(pyg_graph=data, embedding_size=64) # define graph embedding model
-model._train(model, epochs=10) # train
-embeddings = model.get_embeddings(model=model) # get embeddings
+model._train(epochs=10) # train
+embeddings = model.get_embeddings() # get embeddings
 ```
 ## Models Supported
 

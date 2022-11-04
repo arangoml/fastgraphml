@@ -15,8 +15,8 @@ def test_sage() -> None:
         },
     }
     model = SAGE(db, "graph", metagraph, embedding_size=64)  # define model
-    model._train(model, epochs=2)  # train
-    embeddings = model.get_embeddings(model=model)  # get embeddings
+    model._train(epochs=2)  # train
+    embeddings = model.get_embeddings()  # get embeddings
     # check embeddings size
     assert embeddings.size == int(173312)
     # check similarity search
@@ -49,8 +49,8 @@ def test_sage() -> None:
 def test_sage_pyg() -> None:
     dataset_cora = Planetoid("./", "Cora")[0]
     model = SAGE(pyg_graph=dataset_cora, embedding_size=64)
-    model._train(model, epochs=2)
-    embeddings = model.get_embeddings(model=model)
+    model._train(epochs=2)
+    embeddings = model.get_embeddings()
     assert embeddings.size == int(173312)
 
 
@@ -65,8 +65,8 @@ def test_gat() -> None:
         },
     }
     model = GAT(db, "graph", metagraph, embedding_size=64, heads=1)  # define model
-    model._train(model, epochs=2)  # train
-    embeddings = model.get_embeddings(model=model)  # get embeddings
+    model._train(epochs=2)  # train
+    embeddings = model.get_embeddings()  # get embeddings
     # check embeddings size
     assert embeddings.size == int(173312)
 
@@ -119,8 +119,8 @@ def test_dmgi() -> None:
     }
     metapaths = [[("movie", "actor"), ("actor", "movie")]]  # MAM
     model = DMGI(db, "imdb", metagraph, metapaths, key_node="movie", embedding_size=4)
-    model._train(model, epochs=2, lr=0.0005)
-    embeddings = model.get_embeddings(model=model)
+    model._train(epochs=2, lr=0.0005)
+    embeddings = model.get_embeddings()
     # check embeddings size
     assert embeddings["movie"].size == int(17112)
     downstream_tasks.visualize_embeddings(

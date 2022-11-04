@@ -175,7 +175,6 @@ class SAGE(nn.Module):
 
     def _train(
         self,
-        model: Any,
         ckp_path: str = "./latest_model_checkpoint.pt",
         best_model_path: str = "./best_model.pt",
         epochs: int = 51,
@@ -184,7 +183,6 @@ class SAGE(nn.Module):
     ) -> None:
         """Train GraphML model.
 
-        :model: Graph embedding model.
         :ckp_path (type: str): Path to save model's latest checkpoints
             (i.e. at each epoch). Pytorch models are saved with .pt file extension.
             By default it saves model in cwd.
@@ -196,7 +194,7 @@ class SAGE(nn.Module):
             e.g. weight_decay, betas, etc.
         """
 
-        model = model.to(device)
+        model = self.to(device)
         optimizer = torch.optim.Adam(model.parameters(), lr, **kwargs)
         best_acc = 0.0
         print("Training started .........")
@@ -225,7 +223,7 @@ class SAGE(nn.Module):
             # validate model #
             ##################
 
-            val_acc, test_acc = self.val(model)
+            val_acc, test_acc = self.val()
 
             print(
                 f"Epoch: {epoch:03d}, Train_Loss: {loss:.4f}, "
@@ -256,15 +254,14 @@ class SAGE(nn.Module):
                 best_acc = val_acc
 
     @torch.no_grad()
-    def val(self, model: Any) -> Tuple[float, float]:
+    def val(self,) -> Tuple[float, float]:
         """Tests the performance of a generated graph embeddings using Node Classification as a downstream task.
 
         returns validation and test accuracy.
 
-        model: Graph embedding model.
         """  # noqa: E501
-        model.eval()
-        out = model.full_forward(self.x, self.edge_index).cpu()
+        self.eval()
+        out = self.full_forward(self.x, self.edge_index).cpu()
         clf = LogisticRegression(max_iter=400, class_weight="balanced")
         clf.fit(out[self.G.train_mask], self.G.y[self.G.train_mask])
         val_acc = clf.score(out[self.G.val_mask], self.G.y[self.G.val_mask])
@@ -273,14 +270,13 @@ class SAGE(nn.Module):
         return val_acc, test_acc
 
     @torch.no_grad()
-    def get_embeddings(self, model: Any) -> Union[Tensor, Any]:
+    def get_embeddings(self,) -> Union[Tensor, Any]:
         """Returns Graph Embeddings of size (n, embedding_size),
            n: number of nodes in graph.
            embedding_size: Length of the node embeddings when they are mapped to
                d-dimensional euclidean space.
 
-        model: Graph embedding model.
         """
-        model.eval()
-        emb = model.full_forward(self.x, self.edge_index).detach().cpu().numpy()
+        self.eval()
+        emb = self.full_forward(self.x, self.edge_index).detach().cpu().numpy()
         return emb

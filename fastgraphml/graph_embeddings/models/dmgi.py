@@ -179,7 +179,6 @@ class DMGI(torch.nn.Module):
 
     def _train(
         self,
-        model: Any,
         ckp_path: str = "./latest_model_checkpoint.pt",
         best_model_path: str = "./best_model.pt",
         epochs: int = 51,
@@ -188,7 +187,6 @@ class DMGI(torch.nn.Module):
     ) -> None:
         """Train GraphML model.
 
-        :model: Graph embedding model.
         :ckp_path (type: str): Path to save model's latest checkpoints
             (i.e. at each epoch). Pytorch models are saved with .pt file extension.
             By default it saves model in cwd.
@@ -200,7 +198,7 @@ class DMGI(torch.nn.Module):
             e.g. weight_decay, betas, etc.
         """
 
-        model = model.to(device)
+        model = self.to(device)
         optimizer = torch.optim.Adam(model.parameters(), lr, **kwargs)
         best_acc = 0.0
         print("Training started .........")
@@ -217,7 +215,7 @@ class DMGI(torch.nn.Module):
             # validate model #
             ##################
 
-            val_acc, test_acc = self.val(model)
+            val_acc, test_acc = self.val()
 
             print(
                 f"Epoch: {epoch:03d}, Train_Loss: {loss:.4f}, "
@@ -248,7 +246,7 @@ class DMGI(torch.nn.Module):
                 best_acc = val_acc
 
     @torch.no_grad()
-    def val(self, model: Any) -> Tuple[float, float]:
+    def val(self,) -> Tuple[float, float]:
         """Tests the performance of a generated graph embeddings using Node
         Classification as a downstream task.
 
@@ -256,10 +254,10 @@ class DMGI(torch.nn.Module):
 
         model: Graph embedding model.
         """
-        model.eval()
-        train_emb = model.Z[self.G[self.key_node].train_mask].cpu()
-        val_emb = model.Z[self.G[self.key_node].val_mask].cpu()
-        test_emb = model.Z[self.G[self.key_node].test_mask].cpu()
+        self.eval()
+        train_emb = self.Z[self.G[self.key_node].train_mask].cpu()
+        val_emb = self.Z[self.G[self.key_node].val_mask].cpu()
+        test_emb = self.Z[self.G[self.key_node].test_mask].cpu()
 
         train_y = self.G[self.key_node].y[self.G[self.key_node].train_mask].cpu()
         val_y = self.G[self.key_node].y[self.G[self.key_node].val_mask].cpu()
@@ -272,7 +270,7 @@ class DMGI(torch.nn.Module):
         return val_acc, test_acc
 
     @torch.no_grad()
-    def get_embeddings(self, model: Any) -> Dict[Optional[str], Any]:
+    def get_embeddings(self,) -> Dict[Optional[str], Any]:
         """Returns Graph Embeddings for the key node only.
 
            Embeddings size: (n, embedding_size), where
@@ -280,11 +278,10 @@ class DMGI(torch.nn.Module):
            embedding_size: Length of the node embeddings when they are mapped to
                d-dimensional euclidean space.
 
-        model: Graph embedding model.
         """
         emb = {}
-        model.eval()
-        z = model.Z.detach().cpu().numpy()
+        self.eval()
+        z = self.Z.detach().cpu().numpy()
         emb[self.key_node] = z
 
         return emb

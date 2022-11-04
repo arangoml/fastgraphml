@@ -39,7 +39,7 @@ jobs:
       - name: Run mypy
         run: conda run -n fastgraphml mypy ${{env.PACKAGE_DIR}} ${{env.TESTS_DIR}}
       - name: Run bandit
-        run: conda run -n fastgraphml bandit --exclude "./tests/*" -r ./
+        run: conda run -n fastgraphml bandit --exclude "./tests/*" -r "./"
   test:
     runs-on: self-hosted
     defaults:

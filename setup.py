@@ -5,18 +5,18 @@ with open("./README.md", encoding="utf-8") as fp:
 
 
 dev_requirements = [
-    "black>=22.8.0",
-    "pytest>=7.1.3",
-    "sphinx>=5.1.1",
-    "pre-commit>=2.20.0",
-    "types-requests>=2.28.11.2",
-    "flake8>=5.0.4",
-    "pytest>=7.1.3",
-    "pytest-cov>=4.0.0",
-    "isort>=5.10.1",
-    "mypy>=0.982",
-    "types-setuptools",
-    "bandit>=1.7.4",
+    "black==22.8.0",
+    "pytest==7.1.3",
+    "sphinx==5.1.1",
+    "pre-commit==2.20.0",
+    "types-requests==2.28.11.2",
+    "flake8==5.0.4",
+    "pytest==7.1.3",
+    "pytest-cov==4.0.0",
+    "isort==5.10.1",
+    "mypy==0.982",
+    "types-setuptools==65.5.0.2",
+    "bandit==1.7.4",
 ]
 
 
@@ -42,17 +42,17 @@ setup(
     python_requires=">=3.8",
     license="MIT License",
     install_requires=[
-        "requests=2.28.1",
-        "sklearn=0.0",
+        "requests==2.28.1",
+        "sklearn==0.0",
         "matplotlib==3.5.2",
-        "seaborn>=0.11.2",
-        "matplotlib-inline>=0.1.2",
+        "seaborn==0.11.2",
+        "matplotlib-inline==0.1.2",
         "numpy==1.22.4",
         "tqdm==4.64.0",
         "umap-learn==0.5.3",
         "adbpyg-adapter==1.1.0",
-        "python-arango>=7.4.1",
-        "setuptools>=45",
+        "python-arango==7.4.1",
+        "setuptools==45"
     ],
     extras_require={
         "dev": dev_requirements,

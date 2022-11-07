@@ -1,3 +1,4 @@
+import pytest
 from torch_geometric.datasets import Planetoid
 
 from fastgraphml.graph_embeddings import DMGI, GAT, METAPATH2VEC, SAGE, downstream_tasks
@@ -29,6 +30,12 @@ def test_sage() -> None:
         embeddings, top_k_nbors=10, nlist=10, search_type="approx"
     )
     assert nbors.size == int(29788)
+    # check similarity search
+    with pytest.raises(Exception):
+        dist, nbors = downstream_tasks.similarity_search(
+            embeddings, top_k_nbors=10, nlist=10, search_type="wrong"
+        )
+
     # check vis
     class_names = {0: "a", 1: "b", 2: "c", 3: "d", 4: "e", 5: "f", 6: "g"}
     downstream_tasks.visualize_embeddings(

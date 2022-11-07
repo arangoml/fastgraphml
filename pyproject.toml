@@ -1,0 +1,16 @@
+# pyproject.toml
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests"
+]
+
+[tool.black]
+line-length=88
+
+[tool.coverage.report]
+omit = ["*tests*"]
+
+[tool.coverage.run]
+omit = ["*tests*"]

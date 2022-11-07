@@ -1,2 +1,6 @@
 __pycache__/
+build/
+fastgraphml.egg-info/
+fastgraphml/.DS_Store
+dist/
 

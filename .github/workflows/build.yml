@@ -2,21 +2,65 @@ name: build
 on:
   workflow_dispatch:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
+env:
+  PACKAGE_DIR: fastgraphml
+  TESTS_DIR: tests
+  CONDA_ENV: fastgraphml
 jobs:
-  build:
+  lint:
     runs-on: self-hosted
     defaults:
       run:
         shell: bash -l {0}
-    name: gpu
+    strategy:
+      matrix:
+        python: ["3.8"]
+    name: Lint - Python ${{ matrix.python }}
     steps:
       - uses: actions/checkout@v2
       - name: Activating conda env
         run: |
           source ~/miniconda3/etc/profile.d/conda.sh 
-          conda activate fastgraphml
-      - name: Run pytest in conda env
-        run: conda run -n fastgraphml pytest 
+          conda activate ${{env.CONDA_ENV}}
+      - name: Setup Python ${{ matrix.python }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install packages
+        run: conda run -n ${{env.CONDA_ENV}} pip install .[dev]
+      - name: Run black
+        run: conda run -n ${{env.CONDA_ENV}} black --check --verbose --diff --color ${{env.PACKAGE_DIR}} ${{env.TESTS_DIR}}
+      - name: Run flake8
+        run: conda run -n ${{env.CONDA_ENV}} flake8 ${{env.PACKAGE_DIR}} ${{env.TESTS_DIR}}
+      - name: Run isort
+        run: conda run -n ${{env.CONDA_ENV}} isort --check --profile=black ${{env.PACKAGE_DIR}} ${{env.TESTS_DIR}}
+      - name: Run mypy
+        run: conda run -n ${{env.CONDA_ENV}} mypy ${{env.PACKAGE_DIR}} ${{env.TESTS_DIR}}
+      - name: Run bandit
+        run: conda run -n ${{env.CONDA_ENV}} bandit --exclude "./tests/*" --recursive ./
+  test:
+    runs-on: self-hosted
+    defaults:
+      run:
+        shell: bash -l {0}
+    strategy:
+      matrix:
+        python: ["3.8"]
+    name: Test - Python ${{ matrix.python }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Python ${{ matrix.python }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Activating conda env
+        run: |
+          source ~/miniconda3/etc/profile.d/conda.sh 
+          conda activate ${{env.CONDA_ENV}}
+      - name: Install packages
+        run: conda run -n ${{env.CONDA_ENV}} pip install .[dev]
+      - name: Run pytest
+        run: conda run -n ${{env.CONDA_ENV}} pytest --cov=${{env.PACKAGE_DIR}} --cov-report xml --cov-report term-missing -v --color=yes --no-cov-on-fail --code-highlight=yes --cov-fail-under=75

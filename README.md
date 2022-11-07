@@ -2,12 +2,13 @@
 Given an input graph it generates Graph Embeddings using Low-Code framework built on top of [PyG](https://pytorch-geometric.readthedocs.io/en/latest/). The package supports training on both GPU and CPU enabled machines. Training jobs on GPUs results in much faster execution and increased in performance when it comes to handling large graphs as compared to CPUs. In addition, the framework provides tight integration with  [ArangoDB](https://www.arangodb.com/) which is a scalable, fully managed graph database, document store and search engine in one place. Once Graph Embeddings are generated, they can be used for various downstream machine learning tasks like Node Classification, Link Prediction, Visualisation, Community Detection, Similartiy Search, Recommendation, etc. 
 
 ## Installation
-#### Additional Dependencies
-1. [pytorch](https://pytorch.org/) 
-2. [pyg](https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html) 
-3. [FAISS](https://github.com/facebookresearch/faiss/blob/main/INSTALL.md) 
-
-Note: For FAISS-CPU one needs numba==0.53.0
+#### Required Dependencies
+1. PyTorch `1.12.*` is required.
+    * Install using previous version that matches your CUDA version: [pytorch](https://pytorch.org/get-started/previous-versions/)
+        * To find your installed CUDA version run `nvidia-smi` in your terminal.
+2. [pyg](https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html)
+3. [FAISS](https://github.com/facebookresearch/faiss/blob/main/INSTALL.md)
+    * Note: For FAISS-CPU one needs `numba==0.53.0`
 
 #### Latest Release
 ```
@@ -28,29 +29,34 @@ git clone https://github.com/arangoml/fastgraphml.git
 
 ```python
 from fastgraphml.graph_embeddings import SAGE, GAT
-from fastgraphml.graph_embeddings import downstream_tasks 
+from fastgraphml.graph_embeddings import downstream_tasks
+from fastgraphml import Datasets 
 from arango import ArangoClient
 
 # Initialize the ArangoDB client.
 client = ArangoClient("http://127.0.0.1:8529")
-db = client.db('_system', username='root')
+db = client.db('_system', username='root', password='openSesame')
 
-# arangodb graph name
-arango_graph = db.graph('cora_graph')
+# Loading Amazon Computer Products dataset into ArangoDB
+Datasets(db).load("AMAZON_COMPUTER_PRODUCTS")
+
+# Optionally use arangodb graph
+# arango_graph = db.graph('product_graph')
+
 # metadata information of arango_graph
 metagraph = {
     "vertexCollections": {
-        "Paper": {"x": "features", "y": "label"},
+        "Computer_Products": {"x": "features", "y": "label"},
     },
     "edgeCollections": {
-        "Cites": {},
+        "bought_together": {},
     },
 }
 
 # generating graph embeddings with 3 lines of code
-model = SAGE(db, arango_graph, metagraph, embedding_size=64) # define graph embedding model
-model._train(model, epochs=10) # train
-embeddings = model.get_embeddings(model=model) # get embeddings
+model = SAGE(db,'product_graph', metagraph, embedding_size=64) # define graph embedding model
+model._train(epochs=10) # train
+embeddings = model.get_embeddings() # get embeddings
 ```
 
 #### Example Heterogeneous Graphs
@@ -58,13 +64,20 @@ embeddings = model.get_embeddings(model=model) # get embeddings
 ```python
 from fastgraphml.graph_embeddings import METAPATH2VEC, DMGI
 from fastgraphml.graph_embeddings import downstream_tasks 
+from fastgraphml import Datasets 
+
 from arango import ArangoClient
 
 # Initialize the ArangoDB client.
 client = ArangoClient("http://127.0.0.1:8529")
 db = client.db('_system', username='root')
 
-arango_graph = db.graph("IMDB")
+# Loading IMDB Dataset into ArangoDB
+Datasets(db).load("IMDB_X")
+
+# Optionally use ArangoDB Graph
+# arango_graph = db.graph("IMDB")
+
 metagraph = {
     "vertexCollections": {
     
@@ -80,7 +93,7 @@ metapaths = [('movie', 'to','actor'),
              ('actor', 'to', 'movie'), ] # MAM # co-actor relationship
 
 # generating graph embeddings with 3 lines of code
-model = METAPATH2VEC(db, arango_graph, metagraph, metapaths, key_node='movie', embedding_size=128,
+model = METAPATH2VEC(db, "IMDB_X", metagraph, metapaths, key_node='movie', embedding_size=128,
                      walk_length=5, context_size=6, walks_per_node=5, num_negative_samples=5,
                      sparse=True) # define model
 model._train(epochs=10, lr=0.03) # train
@@ -100,8 +113,8 @@ data = dataset[0]
 
 # generating graph embeddings with 3 lines of code
 model = SAGE(pyg_graph=data, embedding_size=64) # define graph embedding model
-model._train(model, epochs=10) # train
-embeddings = model.get_embeddings(model=model) # get embeddings
+model._train(epochs=10) # train
+embeddings = model.get_embeddings() # get embeddings
 ```
 ## Models Supported
 

@@ -59,7 +59,7 @@ setup(
         "dev": dev_requirements,
     },
     classifiers=[
-        "Intended Audience :: Data Scientists/ML Engineers",
+        "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",

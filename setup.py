@@ -53,6 +53,7 @@ setup(
         "adbpyg-adapter==1.1.0",
         "python-arango==7.4.1",
         "setuptools==45",
+        "arango_datasets==1.0.0",
     ],
     extras_require={
         "dev": dev_requirements,

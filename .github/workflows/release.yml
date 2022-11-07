@@ -1,0 +1,155 @@
+name: release
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+env:
+  PACKAGE_DIR: fastgraphml
+  TESTS_DIR: tests
+  CONDA_ENV: fastgraphml
+jobs:
+  lint:
+    runs-on: self-hosted
+    defaults:
+      run:
+        shell: bash -l {0}
+    strategy:
+      matrix:
+        python: ["3.8"]
+    name: Lint - Python ${{ matrix.python }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Activating conda env
+        run: |
+          source ~/miniconda3/etc/profile.d/conda.sh 
+          conda activate ${{env.CONDA_ENV}}
+      - name: Setup Python ${{ matrix.python }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install packages
+        run: conda run -n ${{env.CONDA_ENV}} pip install .[dev]
+      - name: Run black
+        run: conda run -n ${{env.CONDA_ENV}} black --check --verbose --diff --color ${{env.PACKAGE_DIR}} ${{env.TESTS_DIR}}
+      - name: Run flake8
+        run: conda run -n ${{env.CONDA_ENV}} flake8 ${{env.PACKAGE_DIR}} ${{env.TESTS_DIR}}
+      - name: Run isort
+        run: conda run -n ${{env.CONDA_ENV}} isort --check --profile=black ${{env.PACKAGE_DIR}} ${{env.TESTS_DIR}}
+      - name: Run mypy
+        run: conda run -n ${{env.CONDA_ENV}} mypy ${{env.PACKAGE_DIR}} ${{env.TESTS_DIR}}
+      - name: Run bandit
+        run: conda run -n ${{env.CONDA_ENV}} bandit --exclude "./tests/*" --recursive ./
+  test:
+    needs: lint
+    runs-on: self-hosted
+    defaults:
+      run:
+        shell: bash -l {0}
+    strategy:
+      matrix:
+        python: ["3.8"]
+    name: Test - Python ${{ matrix.python }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Python ${{ matrix.python }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Activating conda env
+        run: |
+          source ~/miniconda3/etc/profile.d/conda.sh 
+          conda activate ${{env.CONDA_ENV}}
+      - name: Install packages
+        run: conda run -n ${{env.CONDA_ENV}} pip install .[dev]
+      - name: Run pytest
+        run: conda run -n ${{env.CONDA_ENV}} pytest --cov=${{env.PACKAGE_DIR}} --cov-report xml --cov-report term-missing -v --color=yes --no-cov-on-fail --code-highlight=yes --cov-fail-under=75
+  release:
+    needs: test
+    runs-on: ubuntu-latest
+    name: Release package
+    steps:
+      - name: Activating conda env
+        run: |
+          source ~/miniconda3/etc/profile.d/conda.sh 
+          conda activate ${{env.CONDA_ENV}}
+      - uses: actions/checkout@v2
+
+      - name: Fetch complete history for all tags and branches
+        run: git fetch --prune --unshallow
+
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.8"
+
+      - name: Install release packages
+        run: conda run -n ${{env.CONDA_ENV}} pip install setuptools wheel twine setuptools-scm[toml]
+
+      - name: Install packages
+        run: conda run -n ${{env.CONDA_ENV}} pip install .[dev]
+
+      - name: Build distribution
+        run: conda run -n ${{env.CONDA_ENV}} python setup.py sdist bdist_wheel
+
+      - name: Publish to PyPI Test
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD_TEST }}
+        run: conda run -n ${{env.CONDA_ENV}} twine upload --repository testpypi dist/* #--skip-existing
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+        run: conda run -n ${{env.CONDA_ENV}} twine upload --repository pypi dist/* #--skip-existing
+
+  changelog:
+    needs: release
+    runs-on: ubuntu-latest
+    name: Update Changelog
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Create new branch
+        run: git checkout -b actions/changelog
+
+      - name: Set branch upstream
+        run: git push -u origin actions/changelog
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.8"
+
+      - name: Install release packages
+        run: conda run -n ${{env.CONDA_ENV}} pip install wheel gitchangelog pystache
+
+      - name: Set variables
+        run: echo "VERSION=$(curl ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/releases/latest | python -c "import sys; import json; print(json.load(sys.stdin)['tag_name'])")" >> $GITHUB_ENV
+
+      - name: Generate newest changelog
+        run: gitchangelog ${{env.VERSION}} > CHANGELOG.md
+
+      - name: Make commit for auto-generated changelog
+        uses: EndBug/add-and-commit@v7
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          add: "CHANGELOG.md"
+          branch: actions/changelog
+          message: "!gitchangelog"
+
+      - name: Create pull request for the auto generated changelog
+        run: |
+          echo "PR_URL=$(gh pr create \
+            --title "changelog: release ${{env.VERSION}}" \
+            --body "beep boop, i am a robot" \
+            --label documentation)" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Alert developer of open PR
+        run: echo "Changelog $PR_URL is ready to be merged by developer."

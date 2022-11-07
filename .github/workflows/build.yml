@@ -8,6 +8,7 @@ on:
 env:
   PACKAGE_DIR: fastgraphml
   TESTS_DIR: tests
+  CONDA_ENV: fastgraphml
 jobs:
   lint:
     runs-on: self-hosted
@@ -23,23 +24,23 @@ jobs:
       - name: Activating conda env
         run: |
           source ~/miniconda3/etc/profile.d/conda.sh 
-          conda activate fastgraphml
+          conda activate ${{env.CONDA_ENV}}
       - name: Setup Python ${{ matrix.python }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python }}
       - name: Install packages
-        run: conda run -n fastgraphml pip install .[dev]
+        run: conda run -n ${{env.CONDA_ENV}} pip install .[dev]
       - name: Run black
-        run: conda run -n fastgraphml black --check --verbose --diff --color ${{env.PACKAGE_DIR}} ${{env.TESTS_DIR}}
+        run: conda run -n ${{env.CONDA_ENV}} black --check --verbose --diff --color ${{env.PACKAGE_DIR}} ${{env.TESTS_DIR}}
       - name: Run flake8
-        run: conda run -n fastgraphml flake8 ${{env.PACKAGE_DIR}} ${{env.TESTS_DIR}}
+        run: conda run -n ${{env.CONDA_ENV}} flake8 ${{env.PACKAGE_DIR}} ${{env.TESTS_DIR}}
       - name: Run isort
-        run: conda run -n fastgraphml isort --check --profile=black ${{env.PACKAGE_DIR}} ${{env.TESTS_DIR}}
+        run: conda run -n ${{env.CONDA_ENV}} isort --check --profile=black ${{env.PACKAGE_DIR}} ${{env.TESTS_DIR}}
       - name: Run mypy
-        run: conda run -n fastgraphml mypy ${{env.PACKAGE_DIR}} ${{env.TESTS_DIR}}
+        run: conda run -n ${{env.CONDA_ENV}} mypy ${{env.PACKAGE_DIR}} ${{env.TESTS_DIR}}
       - name: Run bandit
-        run: conda run -n fastgraphml bandit --exclude "./tests/*" --recursive ./
+        run: conda run -n ${{env.CONDA_ENV}} bandit --exclude "./tests/*" --recursive ./
   test:
     runs-on: self-hosted
     defaults:
@@ -58,8 +59,8 @@ jobs:
       - name: Activating conda env
         run: |
           source ~/miniconda3/etc/profile.d/conda.sh 
-          conda activate fastgraphml
+          conda activate ${{env.CONDA_ENV}}
       - name: Install packages
-        run: conda run -n fastgraphml pip install .[dev]
+        run: conda run -n ${{env.CONDA_ENV}} pip install .[dev]
       - name: Run pytest
-        run: conda run -n fastgraphml pytest --cov=${{env.PACKAGE_DIR}} --cov-report xml --cov-report term-missing -v --color=yes --no-cov-on-fail --code-highlight=yes --cov-fail-under=75
+        run: conda run -n ${{env.CONDA_ENV}} pytest --cov=${{env.PACKAGE_DIR}} --cov-report xml --cov-report term-missing -v --color=yes --no-cov-on-fail --code-highlight=yes --cov-fail-under=75

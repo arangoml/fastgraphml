@@ -14,12 +14,6 @@ Given an input graph it generates Graph Embeddings using Low-Code framework buil
 ```
 pip install fastgraphml
 ```
-#### Current State
-```
-pip install adbpyg-adapter
-git clone https://github.com/arangoml/fastgraphml.git
-
-```
 
 ## Quickstart: Graph Embedding Generation
 
@@ -35,7 +29,7 @@ from arango import ArangoClient
 
 # Initialize the ArangoDB client.
 client = ArangoClient("http://127.0.0.1:8529")
-db = client.db('_system', username='root', password='openSesame')
+db = client.db('_system', username='root', password='')
 
 # Loading Amazon Computer Products dataset into ArangoDB
 Datasets(db).load("AMAZON_COMPUTER_PRODUCTS")

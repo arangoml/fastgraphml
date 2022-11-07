@@ -35,22 +35,26 @@ from arango import ArangoClient
 
 # Initialize the ArangoDB client.
 client = ArangoClient("http://127.0.0.1:8529")
-db = client.db('_system', username='root')
+db = client.db('_system', username='root', password='openSesame')
 
-# arangodb graph name
-arango_graph = db.graph('cora_graph')
+# Loading Amazon Computer Products dataset into ArangoDB
+Datasets(db).load("AMAZON_COMPUTER_PRODUCTS")
+
+# Optionally use arangodb graph
+# arango_graph = db.graph('product_graph')
+
 # metadata information of arango_graph
 metagraph = {
     "vertexCollections": {
-        "Paper": {"x": "features", "y": "label"},
+        "Computer_Products": {"x": "features", "y": "label"},
     },
     "edgeCollections": {
-        "Cites": {},
+        "bought_together": {},
     },
 }
 
 # generating graph embeddings with 3 lines of code
-model = SAGE(db, arango_graph, metagraph, embedding_size=64) # define graph embedding model
+model = SAGE(db,'product_graph', metagraph, embedding_size=64) # define graph embedding model
 model._train(epochs=10) # train
 embeddings = model.get_embeddings() # get embeddings
 ```
@@ -60,13 +64,20 @@ embeddings = model.get_embeddings() # get embeddings
 ```python
 from fastgraphml.graph_embeddings import METAPATH2VEC, DMGI
 from fastgraphml.graph_embeddings import downstream_tasks 
+from fastgraphml import Datasets 
+
 from arango import ArangoClient
 
 # Initialize the ArangoDB client.
 client = ArangoClient("http://127.0.0.1:8529")
 db = client.db('_system', username='root')
 
-arango_graph = db.graph("IMDB")
+# Loading IMDB Dataset into ArangoDB
+Datasets(db).load("IMDB_X")
+
+# Optionally use ArangoDB Graph
+# arango_graph = db.graph("IMDB")
+
 metagraph = {
     "vertexCollections": {
     
@@ -82,7 +93,7 @@ metapaths = [('movie', 'to','actor'),
              ('actor', 'to', 'movie'), ] # MAM # co-actor relationship
 
 # generating graph embeddings with 3 lines of code
-model = METAPATH2VEC(db, arango_graph, metagraph, metapaths, key_node='movie', embedding_size=128,
+model = METAPATH2VEC(db, "IMDB_X", metagraph, metapaths, key_node='movie', embedding_size=128,
                      walk_length=5, context_size=6, walks_per_node=5, num_negative_samples=5,
                      sparse=True) # define model
 model._train(epochs=10, lr=0.03) # train

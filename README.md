@@ -14,12 +14,6 @@ Given an input graph it generates Graph Embeddings using Low-Code framework buil
 ```
 pip install fastgraphml
 ```
-#### Current State
-```
-pip install adbpyg-adapter
-git clone https://github.com/arangoml/fastgraphml.git
-
-```
 
 ## Quickstart: Graph Embedding Generation
 

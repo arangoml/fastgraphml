@@ -146,7 +146,7 @@ downstream_tasks.similarity_search(embeddings, top_k_nbors=10, nlist=10, search_
 #### Example 2
 If nearest_nbors_search=True, store_embeddings method saves generated Graph Embeddings in ArangoDB along with top_k nearest neighbors (node ids with similar embeddings) and their corresponding similarity scores (i.e. cosine distance). 
 ```python
-model.graph_util.store_embeddings(embeddings, collection_name=None, batch_size=100, class_mapping=None, 
+model.graph_util.store_embeddings(embeddings, collection_name='emb', batch_size=100, class_mapping=None, 
         nearest_nbors_search=False, top_k_nbors=10, nlist=10, search_type='exact')
 ```
 

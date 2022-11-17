@@ -2,7 +2,8 @@
 Given an input graph it generates Graph Embeddings using Low-Code framework built on top of [PyG](https://pytorch-geometric.readthedocs.io/en/latest/). The package supports training on both GPU and CPU enabled machines. Training jobs on GPUs results in much faster execution and increased in performance when it comes to handling large graphs as compared to CPUs. In addition, the framework provides tight integration with  [ArangoDB](https://www.arangodb.com/) which is a scalable, fully managed graph database, document store and search engine in one place. Once Graph Embeddings are generated, they can be used for various downstream machine learning tasks like Node Classification, Link Prediction, Visualisation, Community Detection, Similartiy Search, Recommendation, etc. 
 
 ## Installation
-#### Required Dependencies
+[ArangoDB](https://www.arangodb.com/)
+#### Required Python Dependencies
 1. PyTorch `1.12.*` is required.
     * Install using previous version that matches your CUDA version: [pytorch](https://pytorch.org/get-started/previous-versions/)
         * To find your installed CUDA version run `nvidia-smi` in your terminal.

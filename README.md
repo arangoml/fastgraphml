@@ -1,4 +1,10 @@
 # fastgraphml
+[![build](https://github.com/arangoml/fastgraphml/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/arangoml/fastgraphml/actions/workflows/build.yml)
+[![Last commit](https://img.shields.io/github/last-commit/arangoml/fastgraphml)](https://github.com/arangoml/fastgraphml/commits/main)
+
+[![Code style: black](https://img.shields.io/static/v1?style=for-the-badge&label=code%20style&message=black&color=black)](https://github.com/psf/black)
+[![Downloads](https://img.shields.io/badge/dynamic/json?style=for-the-badge&color=282661&label=Downloads&query=total_downloads&url=https://api.pepy.tech/api/projects/fastgraphml)](https://pepy.tech/project/fastgraphml)
+
 *Democratizing Graph Machine Learning with Low-Code*
 
 Given an input graph it generates Graph Embeddings using Low-Code framework built on top of [PyG](https://pytorch-geometric.readthedocs.io/en/latest/). The package supports training on both GPU and CPU enabled machines. Training jobs on GPUs results in much faster execution and increased in performance when it comes to handling large graphs as compared to CPUs. In addition, the framework provides tight integration with  [ArangoDB](https://www.arangodb.com/) which is a scalable, fully managed graph database, document store and search engine in one place. Once Graph Embeddings are generated, they can be used for various downstream machine learning tasks like Node Classification, Link Prediction, Visualisation, Community Detection, Similartiy Search, Recommendation, etc. 

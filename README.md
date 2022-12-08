@@ -1,9 +1,9 @@
 # fastgraphml
 [![build](https://github.com/arangoml/fastgraphml/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/arangoml/fastgraphml/actions/workflows/build.yml)
 [![Last commit](https://img.shields.io/github/last-commit/arangoml/fastgraphml)](https://github.com/arangoml/fastgraphml/commits/main)
+[![Downloads](https://static.pepy.tech/personalized-badge/fastgraphml?period=total&units=international_system&left_color=black&right_color=green&left_text=Downloads)](https://pepy.tech/project/fastgraphml)
 
 [![Code style: black](https://img.shields.io/static/v1?style=for-the-badge&label=code%20style&message=black&color=black)](https://github.com/psf/black)
-[![Downloads](https://static.pepy.tech/personalized-badge/fastgraphml?period=total&units=international_system&left_color=black&right_color=green&left_text=Downloads)](https://pepy.tech/project/fastgraphml)
 
 *Democratizing Graph Machine Learning with Low-Code*
 

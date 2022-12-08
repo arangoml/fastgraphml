@@ -6,6 +6,7 @@ with open("./README.md", encoding="utf-8") as fp:
 
 dev_requirements = [
     "black==22.8.0",
+    "coveralls>=3.3.1",
     "pytest==7.1.3",
     "sphinx==5.1.1",
     "pre-commit==2.20.0",

@@ -68,4 +68,4 @@ jobs:
         if: matrix.python == '3.8'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: conda run -n ${{ matrix.python }} coveralls --service=github
+        run: conda run -n ${{ env.CONDA_ENV }} coveralls --service=github

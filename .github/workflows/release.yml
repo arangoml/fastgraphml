@@ -63,6 +63,11 @@ jobs:
         run: conda run -n ${{env.CONDA_ENV}} pip install .[dev]
       - name: Run pytest
         run: conda run -n ${{env.CONDA_ENV}} pytest --cov=${{env.PACKAGE_DIR}} --cov-report xml --cov-report term-missing -v --color=yes --no-cov-on-fail --code-highlight=yes --cov-fail-under=75
+      - name: Publish to coveralls.io
+        if: matrix.python == '3.8'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: conda run -n ${{ env.CONDA_ENV }} coveralls --service=github
   release:
     needs: test
     runs-on: self-hosted
